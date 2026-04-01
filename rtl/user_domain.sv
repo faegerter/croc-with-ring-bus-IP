@@ -21,7 +21,14 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   input  mgr_obi_rsp_t user_mgr_obi_rsp_i,
 
   input  logic [      GpioCount-1:0] gpio_in_sync_i, // synchronized GPIO inputs
-  output logic [NumExternalIrqs-1:0] interrupts_o    // interrupts to core
+  output logic [NumExternalIrqs-1:0] interrupts_o,    // interrupts to core
+
+  input   logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_i,    
+  output  logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_o,    
+  input   logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_i,            
+  output  logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_o,            
+  input   logic                                            slink_credit_recv_clk_i,
+  output  logic                                            slink_credit_rtrn_clk_o
 );
 
   assign interrupts_o = '0;
@@ -29,10 +36,39 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
 
   //////////////////////
   // User Manager MUX //
-  /////////////////////
+  //////////////////////
 
-  // No manager so we don't need a obi_mux module and just terminate the request properly
-  assign user_mgr_obi_req_o = '0;
+
+  // ----------------------------------------------------------------------------------------------
+  // User Manager Buses
+  // ----------------------------------------------------------------------------------------------
+
+  // collection of signals from the multiplexer
+
+  //I don't think that we are forced to add the multiplexer since we only have one manager, however it is cleaner to do so
+  mgr_obi_req_t [NumMuxMgr-1:0] all_user_mgr_obi_req;
+  mgr_obi_rsp_t [NumMuxMgr-1:0] all_user_mgr_obi_rsp;
+
+  obi_mux #(
+    .SbrPortObiCfg      ( SbrObiCfg     ),
+    .sbr_port_obi_req_t ( sbr_obi_req_t ),
+    .sbr_port_a_chan_t  (  ), //TODO How the helly are we going to add that??
+    .sbr_port_obi_rsp_t ( sbr_obi_rsp_t ),
+    .sbr_port_r_chan_t  (   ),
+    .NumSbrPorts        ( NumMuxMgr    ), //Not sure
+    .NumMaxTrans        ( 2             ),
+    .UseIdForRouting    ( )
+  ) i_obi_mux (
+    .clk_i,
+    .rst_ni,
+
+    .sbr_port_select_i ( user_idx               ),
+    .sbr_port_req_i    ( all_user_mgr_obi_req   ),
+    .sbr_port_rsp_o    ( all_user_mgr_obi_rsp   ),
+
+    .mgr_ports_req_o   ( user_mgr_obi_req_o     ),
+    .mgr_ports_rsp_i   ( user_mgr_obi_rsp_i     )
+  );
 
 
   ////////////////////////////
@@ -51,16 +87,21 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   sbr_obi_req_t user_error_obi_req;
   sbr_obi_rsp_t user_error_obi_rsp;
 
-  // OBI bus to your design
-  sbr_obi_req_t user_design_obi_req;
-  sbr_obi_rsp_t user_design_obi_rsp;
+  // OBI bus Serial link
+  sbr_obi_req_t slink_obi_req_i;
+  sbr_obi_rsp_t slink_obi_rsp_o;
+
+  // OBI bus Serial link config
+  sbr_obi_req_t slink_cfg_obi_req_i;
+  sbr_obi_rsp_t slink_cfg_obi_rsp_o;
 
   // Fanout into more readable signals
   assign user_error_obi_req               = all_user_sbr_obi_req[UserError];
   assign all_user_sbr_obi_rsp[UserError]  = user_error_obi_rsp;
-  assign user_design_obi_req              = all_user_sbr_obi_req[UserDesign];
-  assign all_user_sbr_obi_rsp[UserDesign] = user_design_obi_rsp;
-
+  assign slink_obi_req                    = all_user_sbr_obi_req[SerialLink];
+  assign all_user_sbr_obi_rsp[SerialLink] = slink_obi_rsp;
+  assign slink_cfg_obi_req_i              = all_user_sbr_obi_req[SerialLinkConfig];
+  assign all_user_sbr_obi_rsp[SerialLink] = slink_cfg_obi_rsp_o;
 
   //-----------------------------------------------------------------------------------------------
   // Demultiplex to User Subordinates according to address map
@@ -107,23 +148,6 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
 // User Subordinates
 //-------------------------------------------------------------------------------------------------
 
-  ///////////////////////////////////
-  // Replace this with your Design //
-  ///////////////////////////////////
-  obi_err_sbr #(
-    .ObiCfg      ( SbrObiCfg     ),
-    .obi_req_t   ( sbr_obi_req_t ),
-    .obi_rsp_t   ( sbr_obi_rsp_t ),
-    .NumMaxTrans ( 1             ),
-    .RspData     ( 32'hBADCAB1E  )
-  ) i_your_design_goes_here (
-    .clk_i,
-    .rst_ni,
-    .testmode_i ( testmode_i          ),
-    .obi_req_i  ( user_design_obi_req ),
-    .obi_rsp_o  ( user_design_obi_rsp )
-  );
-
   // Error Subordinate
   obi_err_sbr #(
     .ObiCfg      ( SbrObiCfg     ),
@@ -137,6 +161,45 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
     .testmode_i ( testmode_i         ),
     .obi_req_i  ( user_error_obi_req ),
     .obi_rsp_o  ( user_error_obi_rsp )
+  );
+
+
+//-------------------------------------------------------------------------------------------------
+// User Managers and Subordinates
+//-------------------------------------------------------------------------------------------------
+
+  localparam slink_obi_cfg_t SlinkObiCfg = slink_obi_cfg(
+      SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, SbrObiCfg.BeFull, (SbrObiCfg.OptionalCfg != '0));
+
+  `SLINK_OBI_TYPEDEF_DEFAULT(slink_obi, SlinkObiCfg)
+
+
+  slink #(
+    .obi_req_t       ( sbr_obi_req_t            ),
+    .obi_rsp_t       ( sbr_obi_rsp_t            ),
+    .a_optional_t    (    ), //TODO Add this and check if sbr_port_a_chan_t is the type we need (might be an array)
+    .r_optional_t    (    ),
+    .a_chan_write_t  ( slink_obi_a_chan_write_t ),
+    .a_chan_read_t   ( slink_obi_a_chan_read_t  ),
+    .r_chan_write_t  ( slink_obi_r_chan_write_t ),
+    .r_chan_read_t   ( slink_obi_r_chan_read_t  ),
+    .slink_obi_cfg   ( SlinkObiCfg              )
+  ) i_slink (
+    .clk_i             ( clk_i                   ),
+    .rst_ni            ( rst_ni                  ),
+    .testmode_i        ( 1'b0                    ), //TODO Check if we want to connect that
+    .obi_in_req_i      ( slink_obi_req_i         ),
+    .obi_in_rsp_o      ( slink_obi_rsp_o         ),
+    .obi_out_req_o     (       ),
+    .obi_out_rsp_i     (       ),
+    .obi_reg_req_i     ( slink_cfg_obi_req_i     ),
+    .obi_reg_rsp_o     ( slink_cfg_obi_rsp_o     ),
+    .ddr_rcv_clk_i     ( slink_ddr_rcv_clk_i     ),
+    .ddr_rcv_clk_o     ( slink_ddr_rcv_clk_o     ),
+    .ddr_i             ( slink_ddr_i             ),
+    .ddr_o             ( slink_ddr_o             ),
+    .credit_recv_clk_i ( slink_credit_recv_clk_i ),
+    .credit_rtrn_clk_o ( slink_credit_rtrn_clk_o )
   );
 
 endmodule

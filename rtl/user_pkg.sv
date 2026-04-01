@@ -25,8 +25,9 @@ package user_pkg;
 
   /// Enum with user domain demultiplexer subordinate idxs
   typedef enum bit [4:0]  {
-    UserError  = 0,
-    UserDesign = 1
+    UserError        = 0,
+    SerialLink       = 1,
+    SerialLinkConfig = 2
   } user_demux_outputs_e;
 
   /// Address rules given to user domain demultiplexer (see croc_pkg.sv for examples)
@@ -41,5 +42,6 @@ package user_pkg;
 
   // +1 for additional OBI error
   localparam int unsigned NumDemuxSbr = $size(UserAddrMap) + 1;
+  localparam int unsigned NumMuxMgr = 1;
 
 endpackage
