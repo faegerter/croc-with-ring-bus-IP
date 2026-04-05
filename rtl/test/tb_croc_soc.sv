@@ -9,7 +9,7 @@
 `define TRACE_WAVE
 
 module tb_croc_soc #(
-  parameter int unsigned GpioCount = 32
+  parameter int unsigned GpioCount = 16
 );
 
   import tb_croc_pkg::*;
