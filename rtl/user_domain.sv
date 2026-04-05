@@ -7,7 +7,9 @@
 
 module user_domain import user_pkg::*; import croc_pkg::*; #(
   parameter int unsigned GpioCount = 16,
-  parameter int unsigned NumExternalIrqs = 4
+  parameter int unsigned NumExternalIrqs = 4,
+  parameter int unsigned SlinkNumChannels = 1,
+  parameter int unsigned SlinkNumLanes = 8
 ) (
   input  logic      clk_i,
   input  logic      ref_clk_i,
@@ -23,7 +25,7 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   input  logic [      GpioCount-1:0] gpio_in_sync_i, // synchronized GPIO inputs
   output logic [NumExternalIrqs-1:0] interrupts_o,    // interrupts to core
 
-  //TODO SlinkNumChannels and lanes are defined in the user_pkg AND also in the slink_reg_pkg.
+  //TODO SlinkNumChannels and lanes are defined in the croc_chip AND also in the slink_reg_pkg.
   //We should check how to implement it properly also by removing GPIOs that aren't used. 
   input   logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_i,    
   output  logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_o,    

@@ -6,7 +6,9 @@
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
 module croc_soc import croc_pkg::*; #(
-  parameter int unsigned GpioCount = 16
+  parameter int unsigned GpioCount = 16,
+  parameter int unsigned SlinkNumChannels = 1,
+  parameter int unsigned SlinkNumLanes = 8
 ) (
   input  logic clk_i,
   input  logic rst_ni,
@@ -92,8 +94,10 @@ croc_domain #(
 );
 
 user_domain #(
-  .GpioCount       ( GpioCount       ),
-  .NumExternalIrqs ( NumExternalIrqs )
+  .GpioCount        ( GpioCount        ),
+  .NumExternalIrqs  ( NumExternalIrqs  ),
+  .SlinkNumChannels ( SlinkNumChannels ),
+  .SlinkNumLanes    ( SlinkNumLanes    )
 ) i_user (
   .clk_i,
   .rst_ni ( synced_rst_n ),

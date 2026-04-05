@@ -78,6 +78,8 @@ module croc_chip import croc_pkg::*; #() (
     logic soc_status_o;
 
     localparam int unsigned GpioCount = 32;
+    localparam int unsigned SlinkNumChannels = 1;
+    localparam int unsigned SlinkNumLanes = 8;
 
     logic [GpioCount-1:0] soc_gpio_i;
     logic [GpioCount-1:0] soc_gpio_o;
@@ -156,7 +158,9 @@ module croc_chip import croc_pkg::*; #() (
     (* dont_touch = "true" *)sg13g2_IOPadIOVss pad_vssio3();
 
   croc_soc #(
-    .GpioCount( GpioCount )
+    .GpioCount        ( GpioCount        ),
+    .SlinkNumChannels ( SlinkNumChannels ),
+    .SlinkNumLanes    ( SlinkNumLanes    )
   )
   i_croc_soc (
     .clk_i          ( soc_clk_i      ),
@@ -176,7 +180,16 @@ module croc_chip import croc_pkg::*; #() (
 
     .gpio_i         ( soc_gpio_i        ),
     .gpio_o         ( soc_gpio_o        ),
-    .gpio_out_en_o  ( soc_gpio_out_en_o )
+    .gpio_out_en_o  ( soc_gpio_out_en_o ),
+
+    .slink_ddr_rcv_clk_i      ( slink_ddr_rcv_clk_i     ),    
+    .slink_ddr_rcv_clk_o      ( slink_ddr_rcv_clk_o     ), 
+  
+    .slink_ddr_i              ( slink_ddr_i             ),            
+    .slink_ddr_o              ( slink_ddr_o             ), 
+  
+    .slink_credit_recv_clk_i  ( slink_credit_recv_clk_i ),
+    .slink_credit_rtrn_clk_o  ( slink_credit_rtrn_clk_o )
   );
 
 endmodule
