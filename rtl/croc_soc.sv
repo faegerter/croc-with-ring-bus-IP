@@ -23,9 +23,16 @@ module croc_soc import croc_pkg::*; #(
   input  logic uart_rx_i,
   output logic uart_tx_o,
 
-  input  logic [GpioCount-1:0] gpio_i,       // Input from GPIO pins
-  output logic [GpioCount-1:0] gpio_o,       // Output to GPIO pins
-  output logic [GpioCount-1:0] gpio_out_en_o // Output enable signal; 0 -> input, 1 -> output
+  input  logic [GpioCount-1:0] gpio_i,        // Input from GPIO pins
+  output logic [GpioCount-1:0] gpio_o,        // Output to GPIO pins
+  output logic [GpioCount-1:0] gpio_out_en_o, // Output enable signal; 0 -> input, 1 -> output
+
+  input   logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_i,    
+  output  logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_o,    
+  input   logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_i,            
+  output  logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_o,            
+  input   logic                                            slink_credit_recv_clk_i,
+  output  logic                                            slink_credit_rtrn_clk_o
 );
 
   logic synced_rst_n;
@@ -100,7 +107,16 @@ user_domain #(
   .user_mgr_obi_rsp_i ( user_mgr_obi_rsp ),
 
   .gpio_in_sync_i ( gpio_in_sync ),
-  .interrupts_o   ( interrupts   )
+  .interrupts_o   ( interrupts   ),
+
+  .slink_ddr_rcv_clk_i      ( slink_ddr_rcv_clk_i     ),    
+  .slink_ddr_rcv_clk_o      ( slink_ddr_rcv_clk_o     ), 
+
+  .slink_ddr_i              ( slink_ddr_i             ),            
+  .slink_ddr_o              ( slink_ddr_o             ), 
+
+  .slink_credit_recv_clk_i  ( slink_credit_recv_clk_i ),
+  .slink_credit_rtrn_clk_o  ( slink_credit_rtrn_clk_o )
 );
 
 endmodule

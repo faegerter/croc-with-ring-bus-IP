@@ -13,8 +13,18 @@ package user_pkg;
   // User Manager //
   //////////////////
 
-  // None
+  localparam int unsigned NumMuxMgr = 1;
 
+  localparam slink_obi_cfg_t SlinkObiCfg = slink_obi_cfg(
+      SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, SbrObiCfg.BeFull, (SbrObiCfg.OptionalCfg != '0));
+
+  `SLINK_OBI_TYPEDEF_DEFAULT(slink_obi, SlinkObiCfg)
+
+
+  /// Enum with user domain multiplexer manager idxs
+  typedef enum bit [0:0]  {
+    SerialLink       = 0
+  } user_mux_inputs_e;
 
   ///////////////////////
   // User Subordinates //
@@ -42,6 +52,5 @@ package user_pkg;
 
   // +1 for additional OBI error
   localparam int unsigned NumDemuxSbr = $size(UserAddrMap) + 1;
-  localparam int unsigned NumMuxMgr = 1;
 
 endpackage
