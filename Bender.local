@@ -8,3 +8,4 @@ overrides:
   obi: { path: "rtl/obi" }
   riscv-dbg: { path: "rtl/riscv-dbg" }
   idma: { path: "rtl/idma" }
+  slink: { path: "rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology"}

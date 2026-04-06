@@ -6,6 +6,8 @@
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
 `include "obi/typedef.svh"
+`include "user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/include/slink_obi/typedef.svh"
+`include "user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_addrmap.svh"
 
 package user_pkg;
 
@@ -15,15 +17,10 @@ package user_pkg;
 
   localparam int unsigned NumMuxMgr = 1;
 
-  localparam slink_obi_cfg_t SlinkObiCfg = slink_obi_cfg(
-      SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, SbrObiCfg.BeFull, (SbrObiCfg.OptionalCfg != '0));
-
-  `SLINK_OBI_TYPEDEF_DEFAULT(slink_obi, SlinkObiCfg)
-
 
   /// Enum with user domain multiplexer manager idxs
   typedef enum bit [0:0]  {
-    SerialLink       = 0
+    SerialLinkMgr    = 0
   } user_mux_inputs_e;
 
   ///////////////////////
@@ -36,16 +33,23 @@ package user_pkg;
   /// Enum with user domain demultiplexer subordinate idxs
   typedef enum bit [4:0]  {
     UserError        = 0,
-    SerialLink       = 1,
+    SerialLinkSbr    = 1,
     SerialLinkConfig = 2
   } user_demux_outputs_e;
 
+
+
   /// Address rules given to user domain demultiplexer (see croc_pkg.sv for examples)
-  localparam croc_pkg::addr_map_rule_t [0:0] UserAddrMap = '{
+  localparam croc_pkg::addr_map_rule_t [2:0] UserAddrMap = '{
     '{
-      idx:        UserDesign,
+      idx:        SerialLinkConfig,
       start_addr: croc_pkg::UserBaseAddr,
-      end_addr:   croc_pkg::UserBaseAddr + 32'h1000_0000
+      end_addr:   croc_pkg::UserBaseAddr + SLINK_REG_SIZE
+    },
+    '{
+      idx:        SerialLinkSbr,
+      start_addr: 32'h1000_0000,
+      end_addr:   32'hFFFF_FFFF
     }
   };
   // All addresses outside the defined address rules go to the error subordinate

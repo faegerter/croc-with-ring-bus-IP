@@ -3,6 +3,8 @@
 +incdir+../rtl/cve2/include
 +incdir+../rtl/idma/include
 +incdir+../rtl/obi/include
++incdir+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/include
++incdir+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/include
 +define+TARGET_FLIST
 +define+TARGET_RTL
 +define+TARGET_SYNTHESIS
@@ -175,6 +177,18 @@
 ../rtl/gpio/gpio.sv
 ../rtl/clint/clint.sv
 ../rtl/obi_timer/obi_timer.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_reg_pkg.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_reg.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/slink_pkg.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_stream_chopper.sv     
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_stream_dechopper.sv  
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_channel_despread_sfr.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_channel_spread_sfr.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_ch_alloc.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/slink_prot_layer.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/slink_link_layer.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/slink_phys_layer.sv
+../rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/slink.sv
 ../rtl/croc_domain.sv
 ../rtl/user_domain.sv
 ../rtl/croc_soc.sv

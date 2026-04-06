@@ -9,7 +9,9 @@
 `define TRACE_WAVE
 
 module tb_croc_soc #(
-  parameter int unsigned GpioCount = 16
+  parameter int unsigned GpioCount = 16,
+  parameter int unsigned SlinkNumChannels = 1,
+  parameter int unsigned SlinkNumLanes = 8
 );
 
   import tb_croc_pkg::*;
@@ -33,6 +35,13 @@ module tb_croc_soc #(
   logic [GpioCount-1:0] gpio_in;
   logic [GpioCount-1:0] gpio_out;
   logic [GpioCount-1:0] gpio_out_en;
+
+  logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_i;    
+  logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_o;    
+  logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_i;            
+  logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_o;            
+  logic                                            slink_credit_recv_clk_i;
+  logic                                            slink_credit_rtrn_clk_o;
 
   // Signals controlled by the testbench
 
@@ -69,19 +78,19 @@ module tb_croc_soc #(
   croc_vip #(
     .GpioCount ( GpioCount )
   ) i_vip (
-    .rst_no        ( rst_n       ),
-    .sys_clk_o     ( sys_clk     ),
-    .ref_clk_o     ( ref_clk     ),
-    .jtag_tck_o    ( jtag_tck    ),
-    .jtag_trst_no  ( jtag_trst_n ),
-    .jtag_tms_o    ( jtag_tms    ),
-    .jtag_tdi_o    ( jtag_tdi    ),
-    .jtag_tdo_i    ( jtag_tdo    ),
-    .uart_rx_o     ( uart_rx     ),
-    .uart_tx_i     ( uart_tx     ),
-    .gpio_out_en_i ( gpio_out_en ),
-    .gpio_out_i    ( gpio_out    ),
-    .gpio_in_o     ( gpio_in     )
+    .rst_no                   ( rst_n       ),
+    .sys_clk_o                ( sys_clk     ),
+    .ref_clk_o                ( ref_clk     ),
+    .jtag_tck_o               ( jtag_tck    ),
+    .jtag_trst_no             ( jtag_trst_n ),
+    .jtag_tms_o               ( jtag_tms    ),
+    .jtag_tdi_o               ( jtag_tdi    ),
+    .jtag_tdo_i               ( jtag_tdo    ),
+    .uart_rx_o                ( uart_rx     ),
+    .uart_tx_i                ( uart_tx     ),
+    .gpio_out_en_i            ( gpio_out_en ),
+    .gpio_out_i               ( gpio_out    ),
+    .gpio_in_o                ( gpio_in     )
   );
 
   ////////////
@@ -92,24 +101,32 @@ module tb_croc_soc #(
   \croc_soc$croc_chip.i_croc_soc i_croc_soc (
   `else
   croc_soc #(
-    .GpioCount ( GpioCount )
+    .GpioCount        ( GpioCount        ),
+    .SlinkNumChannels ( SlinkNumChannels ),
+    .SlinkNumLanes    ( SlinkNumLanes    )
   ) i_croc_soc (
   `endif
-    .clk_i         ( sys_clk     ),
-    .rst_ni        ( rst_n       ),
-    .ref_clk_i     ( ref_clk     ),
-    .testmode_i    ( 1'b0        ),
-    .status_o      (             ),
-    .jtag_tck_i    ( jtag_tck    ),
-    .jtag_tdi_i    ( jtag_tdi    ),
-    .jtag_tdo_o    ( jtag_tdo    ),
-    .jtag_tms_i    ( jtag_tms    ),
-    .jtag_trst_ni  ( jtag_trst_n ),
-    .uart_rx_i     ( uart_rx     ),
-    .uart_tx_o     ( uart_tx     ),
-    .gpio_i        ( gpio_in     ),
-    .gpio_o        ( gpio_out    ),
-    .gpio_out_en_o ( gpio_out_en )
+    .clk_i                    ( sys_clk                 ),
+    .rst_ni                   ( rst_n                   ),
+    .ref_clk_i                ( ref_clk                 ),
+    .testmode_i               ( 1'b0                    ),
+    .status_o                 (                         ),
+    .jtag_tck_i               ( jtag_tck                ),
+    .jtag_tdi_i               ( jtag_tdi                ),
+    .jtag_tdo_o               ( jtag_tdo                ),
+    .jtag_tms_i               ( jtag_tms                ),
+    .jtag_trst_ni             ( jtag_trst_n             ),
+    .uart_rx_i                ( uart_rx                 ),
+    .uart_tx_o                ( uart_tx                 ),
+    .gpio_i                   ( gpio_in                 ),
+    .gpio_o                   ( gpio_out                ),
+    .gpio_out_en_o            ( gpio_out_en             ),
+    .slink_ddr_rcv_clk_i      ( slink_ddr_rcv_clk_i     ),    
+    .slink_ddr_rcv_clk_o      ( slink_ddr_rcv_clk_o     ), 
+    .slink_ddr_i              ( slink_ddr_i             ),            
+    .slink_ddr_o              ( slink_ddr_o             ), 
+    .slink_credit_recv_clk_i  ( slink_credit_recv_clk_i ),
+    .slink_credit_rtrn_clk_o  ( slink_credit_rtrn_clk_o )
   );
 
   /////////////////

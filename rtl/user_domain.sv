@@ -5,7 +5,7 @@
 // Authors:
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
-module user_domain import user_pkg::*; import croc_pkg::*; #(
+module user_domain import user_pkg::*; import croc_pkg::*; import slink_pkg::*; #(
   parameter int unsigned GpioCount = 16,
   parameter int unsigned NumExternalIrqs = 4,
   parameter int unsigned SlinkNumChannels = 1,
@@ -55,8 +55,8 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   mgr_obi_req_t slink_obi_req_o;
   mgr_obi_rsp_t slink_obi_rsp_i;
 
-  assign all_user_mgr_obi_req[SerialLink] = slink_obi_req_o;
-  assign slink_obi_rsp_i = all_user_mgr_obi_rsp[SerialLink];
+  assign all_user_mgr_obi_req[SerialLinkMgr] = slink_obi_req_o;
+  assign slink_obi_rsp_i                     = all_user_mgr_obi_rsp[SerialLinkMgr];
 
 
   if(NumMuxMgr > 1) begin : gen_user_mgr_mux
@@ -119,12 +119,12 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
   sbr_obi_rsp_t slink_cfg_obi_rsp_o;
 
   // Fanout into more readable signals
-  assign user_error_obi_req               = all_user_sbr_obi_req[UserError];
-  assign all_user_sbr_obi_rsp[UserError]  = user_error_obi_rsp;
-  assign slink_obi_req_i                  = all_user_sbr_obi_req[SerialLink];
-  assign all_user_sbr_obi_rsp[SerialLink] = slink_obi_rsp_o;
-  assign slink_cfg_obi_req_i              = all_user_sbr_obi_req[SerialLinkConfig];
-  assign all_user_sbr_obi_rsp[SerialLink] = slink_cfg_obi_rsp_o;
+  assign user_error_obi_req                     = all_user_sbr_obi_req[UserError];
+  assign all_user_sbr_obi_rsp[UserError]        = user_error_obi_rsp;
+  assign slink_obi_req_i                        = all_user_sbr_obi_req[SerialLinkSbr];
+  assign all_user_sbr_obi_rsp[SerialLinkSbr]    = slink_obi_rsp_o;
+  assign slink_cfg_obi_req_i                    = all_user_sbr_obi_req[SerialLinkConfig];
+  assign all_user_sbr_obi_rsp[SerialLinkConfig] = slink_cfg_obi_rsp_o;
 
   //-----------------------------------------------------------------------------------------------
   // Demultiplex to User Subordinates according to address map
@@ -191,6 +191,10 @@ module user_domain import user_pkg::*; import croc_pkg::*; #(
 // User Managers and Subordinates
 //-------------------------------------------------------------------------------------------------
 
+  localparam slink_obi_cfg_t SlinkObiCfg = slink_obi_cfg(
+      SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, SbrObiCfg.BeFull, (SbrObiCfg.OptionalCfg != '0));
+
+  `SLINK_OBI_TYPEDEF_DEFAULT(slink_obi, SlinkObiCfg)
   
   slink #(
     .obi_req_t       ( sbr_obi_req_t            ),

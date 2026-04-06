@@ -26,7 +26,8 @@ sources:
     files:
       - ihp13/tc_clk.sv
       - ihp13/tc_sram_impl.sv
-
+  - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/include/slink_obi/typedef.svh
+  - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_addrmap.svh
   - rtl/croc_pkg.sv
   - rtl/user_pkg.sv
   - rtl/soc_ctrl/soc_ctrl_regs_pkg.sv
@@ -37,7 +38,7 @@ sources:
   - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_reg_pkg.sv
   - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_reg.sv
   - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/slink_pkg.sv
-    # RTL
+    # RTL 
   - target: not(netlist_yosys)
     files:
       # Level 1
@@ -52,7 +53,6 @@ sources:
       - rtl/croc_domain.sv
       - rtl/user_domain.sv
       # add your design files with modules here
-      - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/include/slink_obi/typedef.svh
       - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_stream_chopper.sv
       - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_stream_dechopper.sv
       - rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/channel_allocator/slink_channel_despread_sfr.sv
