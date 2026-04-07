@@ -61,28 +61,26 @@ module user_domain import user_pkg::*; import croc_pkg::*; import slink_pkg::*; 
 
   if(NumMuxMgr > 1) begin : gen_user_mgr_mux
 
-    logic[$clog2(NumMuxMgr)-1:0] mgr_port_select;
-    assign mgr_port_select = '0; 
-
     obi_mux #(
-      .SbrPortObiCfg      ( SbrObiCfg     ),
-      .sbr_port_obi_req_t ( sbr_obi_req_t ),
-      .sbr_port_a_chan_t  ( a_chan_t      ), 
-      .sbr_port_obi_rsp_t ( sbr_obi_rsp_t ),
-      .sbr_port_r_chan_t  ( r_chan_t      ),
-      .NumSbrPorts        ( NumMuxMgr     ),
-      .NumMaxTrans        ( 2             ),
-      .UseIdForRouting    ( 1'b0          )
+      .SbrPortObiCfg      ( MgrObiCfg             ),
+      .sbr_port_obi_req_t ( mgr_obi_req_t         ),
+      .sbr_port_a_chan_t  ( sbr_obi_a_chan_t      ), 
+      .sbr_port_obi_rsp_t ( mgr_obi_rsp_t         ),
+      .sbr_port_r_chan_t  ( sbr_obi_r_chan_t      ),
+      .NumSbrPorts        ( NumMuxMgr             ),
+      .NumMaxTrans        ( 2                     ),
+      .UseIdForRouting    ( 1'b0                  )
     ) i_obi_mux (
       .clk_i,
       .rst_ni,
+      
+      .testmode_i         (1'b0                   ),
 
-      .sbr_port_select_i ( mgr_port_select        ),
-      .sbr_port_req_i    ( all_user_mgr_obi_req   ),
-      .sbr_port_rsp_o    ( all_user_mgr_obi_rsp   ),
+      .sbr_ports_req_i    ( all_user_mgr_obi_req  ),
+      .sbr_ports_rsp_o    ( all_user_mgr_obi_rsp  ),
 
-      .mgr_ports_req_o   ( user_mgr_obi_req_o     ),
-      .mgr_ports_rsp_i   ( user_mgr_obi_rsp_i     )
+      .mgr_port_req_o     ( user_mgr_obi_req_o    ),
+      .mgr_port_rsp_i     ( user_mgr_obi_rsp_i    )
     );
 
   end else begin : gen_no_user_mgr_mux 

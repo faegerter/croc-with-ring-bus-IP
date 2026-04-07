@@ -6,8 +6,7 @@
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
 `include "obi/typedef.svh"
-`include "user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/include/slink_obi/typedef.svh"
-`include "user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology/src/regs/slink_addrmap.svh"
+`include "slink_obi/typedef.svh"
 
 package user_pkg;
 
@@ -40,11 +39,11 @@ package user_pkg;
 
 
   /// Address rules given to user domain demultiplexer (see croc_pkg.sv for examples)
-  localparam croc_pkg::addr_map_rule_t [2:0] UserAddrMap = '{
+  localparam croc_pkg::addr_map_rule_t [1:0] UserAddrMap = '{
     '{
       idx:        SerialLinkConfig,
       start_addr: croc_pkg::UserBaseAddr,
-      end_addr:   croc_pkg::UserBaseAddr + SLINK_REG_SIZE
+      end_addr:   croc_pkg::UserBaseAddr + slink_reg_pkg::SLINK_REG_SIZE
     },
     '{
       idx:        SerialLinkSbr,

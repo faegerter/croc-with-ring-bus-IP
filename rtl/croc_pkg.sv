@@ -86,10 +86,10 @@ package croc_pkg;
 
   /// Address map given to the main crossbar
   localparam addr_map_rule_t [3:0] CrocAddrMap = '{
-    '{ idx: XbarPeriph,  start_addr: 32'h0000_0000, end_addr: 32'h0900_0000 },
-    '{ idx: XbarUser,    start_addr: 32'h0900_9000, end_addr: 32'hFFFF_FFFF },
-    '{ idx: XbarBank0,   start_addr: 32'h0900_0000, end_addr: 32'h0900_0800 },
-    '{ idx: XbarBank0+1, start_addr: 32'h0900_0800, end_addr: 32'h0900_1000 }
+    '{ idx: XbarPeriph,  start_addr: 32'h0000_0000, end_addr: 32'h0FFF_E000 },
+    '{ idx: XbarUser,    start_addr: 32'h0FFF_F000, end_addr: 32'hFFFF_FFFF },
+    '{ idx: XbarBank0,   start_addr: 32'h0FFF_E000, end_addr: 32'h0FFF_E800 },
+    '{ idx: XbarBank0+1, start_addr: 32'h0FFF_E800, end_addr: 32'h0FFF_F000 }
   };
 
   // +1 for additional OBI error
@@ -262,18 +262,22 @@ package croc_pkg;
   //} sbr_obi_rsp_t;
 
   //This is how we would usually define interconnects using the typedef.svh macros
-  
-  `OBI_TYPEDEF_A_CHAN_T(mgr_obi_a_chan_t, MgrObiCfg.AddrWidth, MgrObiCfg.DataWidth, MgrObiCfg.IdWidth, logic [0:0])
-  `OBI_TYPEDEF_DEFAULT_REQ_T(mgr_obi_req_t, mgr_obi_a_chan_t)
-  `OBI_TYPEDEF_R_CHAN_T(mgr_obi_r_chan_t, MgrObiCfg.DataWidth, MgrObiCfg.IdWidth, logic [0:0])
-  `OBI_TYPEDEF_RSP_T(mgr_obi_rsp_t, mgr_obi_r_chan_t)
+  `OBI_TYPEDEF_DEFAULT_ALL(mgr_obi, MgrObiCfg)                                                                
+
+  //`OBI_TYPEDEF_A_CHAN_T(mgr_obi_a_chan_t, MgrObiCfg.AddrWidth, MgrObiCfg.DataWidth, MgrObiCfg.IdWidth, logic [0:0])
+  //`OBI_TYPEDEF_DEFAULT_REQ_T(mgr_obi_req_t, mgr_obi_a_chan_t)
+  //`OBI_TYPEDEF_R_CHAN_T(mgr_obi_r_chan_t, MgrObiCfg.DataWidth, MgrObiCfg.IdWidth, logic [0:0])
+  //`OBI_TYPEDEF_RSP_T(mgr_obi_rsp_t, mgr_obi_r_chan_t)
 
   // Create types for OBI subordinates/slaves (out of the interconnect, into the device)
   localparam obi_pkg::obi_cfg_t SbrObiCfg = obi_pkg::mux_grow_cfg(MgrObiCfg, NumXbarManagers);
-  `OBI_TYPEDEF_A_CHAN_T(sbr_obi_a_chan_t, SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, logic [0:0])
-  `OBI_TYPEDEF_DEFAULT_REQ_T(sbr_obi_req_t, sbr_obi_a_chan_t)
-  `OBI_TYPEDEF_R_CHAN_T(sbr_obi_r_chan_t, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, logic [0:0])
-  `OBI_TYPEDEF_RSP_T(sbr_obi_rsp_t, sbr_obi_r_chan_t)
+
+  `OBI_TYPEDEF_DEFAULT_ALL(sbr_obi, SbrObiCfg)                                                                
+
+  //`OBI_TYPEDEF_A_CHAN_T(sbr_obi_a_chan_t, SbrObiCfg.AddrWidth, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, logic [0:0])
+  //`OBI_TYPEDEF_DEFAULT_REQ_T(sbr_obi_req_t, sbr_obi_a_chan_t)
+  //`OBI_TYPEDEF_R_CHAN_T(sbr_obi_r_chan_t, SbrObiCfg.DataWidth, SbrObiCfg.IdWidth, logic [0:0])
+  //`OBI_TYPEDEF_RSP_T(sbr_obi_rsp_t, sbr_obi_r_chan_t)
 
   // Register Interface configured as 32 bit data, 32 bit address width (4 byte enable bits)
   //`REG_BUS_TYPEDEF_ALL(reg, logic[31:0], logic[31:0], logic[3:0]);
