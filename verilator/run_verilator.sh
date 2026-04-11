@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2026 ETH Zurich and University of Bologna.
+# Copyright (c) 2024 ETH Zurich and University of Bologna.
 # Licensed under the Apache License, Version 2.0, see LICENSE for details.
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -18,6 +18,13 @@ source "../env.sh"
 
 
 ################
+# Defaults
+################
+TESTBENCH="tb_croc_soc"
+NUM_NODES=3
+
+
+################
 # Helpers
 ################
 
@@ -32,13 +39,20 @@ Options:
     --help, -h          Show this help message
     --dry-run, -n       Only print commands instead of executing
     --verbose, -v       Print commands while executing
+    --ring              Use the multi-node ring testbench (tb_croc_soc_ring)
+    --num-nodes N       Number of nodes for the ring testbench (default: 3,
+                        only used with --ring)
     --flist             Regenerate flist (croc.f)
     --build             Build croc_soc Verilator binary
-    --run BINARY        Run binary in Verilator
+    --run BINARY|DIR    Single-node: path to .hex binary
+                        Ring mode:   path to binary directory (e.g. ../sw/bin)
 
 Example:
-    # Build and run RTL simulation with given binary
+    # Build and run single-node simulation
     ./run_verilator.sh --build --run ../sw/bin/helloworld.hex
+
+    # Build and run 4-node ring simulation
+    ./run_verilator.sh --ring --num-nodes 4 --build --run ../sw/bin
 
 EOF
     exit 0
@@ -47,15 +61,17 @@ EOF
 
 run_cmd() {
     if [ "$DRYRUN" = 1 ]; then
-        echo $1
+        echo "$1"
     else
-        eval $1
+        eval "$1"
     fi
 }
 
 
 build_verilator() {
-    run_cmd "echo [INFO][Verilator] Build Verilator"
+    run_cmd "echo [INFO][Verilator] Building testbench: ${TESTBENCH} \(NumNodes=${NUM_NODES}\)"
+    # -GNumNodes is only meaningful for the ring testbench but is harmless
+    # to pass for the single-node one (it simply has no such parameter).
     run_cmd "verilator \
         -Wno-fatal \
         -Wno-style \
@@ -76,7 +92,8 @@ build_verilator() {
         --x-assign fast \
         --x-initial fast \
         -O3 \
-        --top tb_croc_soc \
+        --top ${TESTBENCH} \
+        -GNumNodes=${NUM_NODES} \
         -f croc.f 2>&1 | \
         tee ${PROJ_NAME}_build.log"
 }
@@ -99,9 +116,18 @@ generate_flist() {
     run_cmd "echo [INFO][Bender] File list generated: croc.f"
 }
 
+
 run_binary() {
-    run_cmd "echo [INFO][Verilator] Running $1"
-    run_cmd "obj_dir/Vtb_croc_soc +binary="$1" | tee ${PROJ_NAME}.log"
+    if [ "$TESTBENCH" = "tb_croc_soc_ring" ]; then
+        # Ring mode: argument is a binary directory, not a single file.
+        # The testbench reads +bin_dir and constructs per-node paths itself.
+        run_cmd "echo [INFO][Verilator] Running ring simulation \(${NUM_NODES} nodes\) from $1"
+        run_cmd "obj_dir/V${TESTBENCH} +bin_dir=\"$1\" | tee ${PROJ_NAME}.log"
+    else
+        # Single-node mode: argument is a .hex file path.
+        run_cmd "echo [INFO][Verilator] Running $1"
+        run_cmd "obj_dir/V${TESTBENCH} +binary=\"$1\" | tee ${PROJ_NAME}.log"
+    fi
 }
 
 
@@ -117,7 +143,7 @@ if [ $# -eq 0 ]; then
     return 0
 fi
 
-# check for global arguments
+# check for global arguments first (these don't consume positional args)
 for arg in "$@"; do
     [[ "$arg" == -v || "$arg" == --verbose ]] && set -x
     [[ "$arg" == -n || "$arg" == --dry-run ]] && DRYRUN=1
@@ -135,6 +161,22 @@ while [[ $# -gt 0 ]]; do
         --dry-run|-n)
             shift
             ;;
+        --ring)
+            TESTBENCH="tb_croc_soc_ring"
+            shift
+            ;;
+        --num-nodes)
+            if [[ -z "${2:-}" || "$2" == -* ]]; then
+                echo "[ERROR] --num-nodes requires a value (e.g. --num-nodes 4)" >&2
+                exit 1
+            fi
+            if ! [[ "$2" =~ ^[0-9]+$ ]] || (( $2 < 2 || $2 > 15 )); then
+                echo "[ERROR] --num-nodes must be an integer in [2, 15], got '$2'" >&2
+                exit 1
+            fi
+            NUM_NODES=$2
+            shift 2
+            ;;
         # script-specific commands
         --flist)
             generate_flist
@@ -145,7 +187,11 @@ while [[ $# -gt 0 ]]; do
             shift
             ;;
         --run)
-            run_binary $2
+            if [[ -z "${2:-}" || "$2" == -* ]]; then
+                echo "[ERROR] --run requires a path argument" >&2
+                exit 1
+            fi
+            run_binary "$2"
             shift 2
             ;;
         # Error handling

@@ -13,45 +13,45 @@
 
 
 #ifndef NUM_NODES
-#define NUM_NODES 2
+#define NUM_NODES 3
 #endif
 
 #ifndef NODE_ID
 #error "NODE_ID not defined"
 #endif
 
-#if NUM_NODES < 2 || NUM_NODES > 16
-#error "NUM_NODES must be between 2 and 16"
+#if NUM_NODES < 2 || NUM_NODES > 15
+#error "NUM_NODES must be between 2 and 15"
 #endif
 
-#if NODE_ID < 0 || NODE_ID >= NUM_NODES
-#error "NODE_ID must be in range [0, NUM_NODES-1]"
+#if NODE_ID < 1 || NODE_ID > NUM_NODES
+#error "NODE_ID must be in range [1, NUM_NODES]"
 #endif
 
-#define N_TESTS 15
+#ifndef N_TESTS
+#define N_TESTS 5
+#endif
 
 #define ADDR_DEST_SHIFT  28U
-#define ADDR_DEST_MASK   (0xFU << ADDR_DEST_SHIFT)
 
-#define TEST_ADDR(dst, src, i) \
+#define TEST_ADDR(dst, src, j) \
     (((uint32_t)(dst) << ADDR_DEST_SHIFT) | \
-     (SRAM_BANK_0_BASE_ADDR + ( (uint32_t)(src) * N_TESTS + (uint32_t)(i)) * 2U))
+     (0x0FFFEA99 + ( (uint32_t)(src-1) * N_TESTS + (uint32_t)(j))))
 
-#define TEST_DATA(src, dst, i)   ((uint32_t)((src) << 16 | (dst) << 8 | (i)))
+#define TEST_DATA(src, dst, j)   ((uint32_t)((src) << 16 | (dst) << 8 | (j)))
 
 int main() {
-
-    while(!slink_set_node_id(NODE_ID));
-
+    slink_set_node_id(NODE_ID);
+    
     if(slink_get_node_id() != NODE_ID){
-        printf("Node ID Verification Failed\n");
-        return 0;
+        printf("Set ID err");
+        return 2;
     }
 
-    uint32_t compare_data[NUM_NODES-1][N_TESTS];
+    uint32_t compare_data[NUM_NODES][N_TESTS];
 
     uint32_t i_idx = 0;;
-    for(int i = 0; i < NUM_NODES; i++){ 
+    for(int i = 1; i <= NUM_NODES; i++){ 
         if(i == NODE_ID){
             continue;
         }
@@ -67,26 +67,24 @@ int main() {
     i_idx = 0;
     uint32_t errors = 0;
 
-    for(int i = 0; i < NUM_NODES; i++){
+    for(int i = 1; i <= NUM_NODES; i++){
         if(i == NODE_ID){
             continue;
         }
         for(int j = 0; j < N_TESTS; j++){
             uint32_t addr = TEST_ADDR(i, NODE_ID, j);
-            if(slink_read_data(addr) != compare_data[i_idx][j]){
+            uint32_t data = slink_read_data(addr);
+            if(data != compare_data[i_idx][j]){
                 errors++;
             }
         }
         i_idx++;
     }
     if(errors > 0){
-        printf("Serial Link Test Failed\n");
-        printf("Number of Errors: %x\n", errors);
-        return 0;
+        return 2;
     }
 
-    printf("Serial Link Test Success!!\n");
 
-    return 1;
+    return 0;
 }
 

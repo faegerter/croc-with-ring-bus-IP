@@ -18,7 +18,7 @@ dependencies:
   obi_peripherals:      { git: "https://github.com/pulp-platform/obi_peripherals.git",      rev: 21ee04d    } # UART
   idma:                 { git: "https://github.com/pulp-platform/idma.git",                 rev: "__deploy__e618e4d__master" } # master with generated files
   cve2:                 { path: "rtl/cve2" } # a vendor package (no Bender.yml), see below 
-  serial_link:          { path: "rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology" }
+  slink_obi:            { path: "rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology" }
 
 sources:
   # Level 0
@@ -67,6 +67,7 @@ sources:
       - rtl/test/tb_croc_pkg.sv
       - rtl/test/croc_vip.sv
       - rtl/test/tb_croc_soc.sv
+      - rtl/test/tb_croc_soc_ring.sv
 
   - target: genesys2
     files:

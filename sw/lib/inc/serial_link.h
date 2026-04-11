@@ -33,17 +33,17 @@
 
 #define SLINK_MAX_TX_CLK_DIV                             0x400
 
-_Bool slink_set_node_id(uint8_t id);
-uint8_t slink_get_node_id();
+void slink_set_node_id(uint32_t id);
+uint32_t slink_get_node_id();
 
-_Bool slink_set_tx_clk_div(uint16_t clk_div);
-uint16_t slink_get_tx_clk_div();
+void slink_set_tx_clk_div(uint32_t clk_div);
+uint32_t slink_get_tx_clk_div();
 
-_Bool slink_set_tx_clk_start(uint16_t clk_start);
-uint16_t slink_get_tx_clk_start();
+void slink_set_tx_clk_start(uint32_t clk_start);
+uint32_t slink_get_tx_clk_start();
 
-_Bool slink_set_tx_clk_end(uint16_t clk_end);
-uint16_t slink_get_tx_clk_end();
+void slink_set_tx_clk_end(uint32_t clk_end);
+uint32_t slink_get_tx_clk_end();
 
 void slink_send_data(uint32_t address, uint32_t data);
 uint32_t slink_read_data(uint32_t address);

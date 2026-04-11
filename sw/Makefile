@@ -35,10 +35,20 @@ LINK     ?= link.ld
 SRCDIR   ?= lib/src
 INCDIR   ?= lib/inc
 
+# Serial link ring test configuration
+# NUM_NODES: total nodes in the system (default 15)
+NUM_NODES  ?= 15
+N_TESTS    ?= 5
+NODE_IDS   := $(shell seq 1 $(shell expr $(NUM_NODES)))
+
+# Source file that contains the node-specific main()
+SLINK_TEST_SRC ?= test/test_serial_link.c
+
+
 # Collecting source files
 LIB_SOURCES  := $(wildcard $(SRCDIR)/*.[cS])
 TOP_SOURCES  := $(filter-out $(CRT0), $(wildcard *.[cS]))
-TEST_SOURCES := $(wildcard test/*.[cS])
+TEST_SOURCES := $(filter-out $(SLINK_TEST_SRC), $(wildcard test/*.[cS]))
 PROG_SOURCES := $(TOP_SOURCES) $(TEST_SOURCES)
 
 PROG_NAMES   := $(basename $(PROG_SOURCES))
@@ -50,18 +60,66 @@ LIB_OBJS  := $(addsuffix .o, $(addprefix $(BUILDDIR)/, \
 PROG_OBJS := $(addsuffix .o, $(addprefix $(BUILDDIR)/, \
 	         $(basename $(PROG_SOURCES))))
 
+# # Per-node object: compile the shared source with node-specific defines
+define NODE_RULES
+$(BUILDDIR)/serial_link_test_node$(1).o: $(SLINK_TEST_SRC)
+	mkdir -p $$(dir $$@)
+	$(RISCV_CC) $(RISCV_CCFLAGS) \
+	    -DNODE_ID=$(1) -DNUM_NODES=$(NUM_NODES) -DN_TESTS=$(N_TESTS) \
+	    -MMD -MP -c $$< -o $$@
+ 
+# Link node ELF
+$(BINDIR)/serial_link_test_node$(1).elf: \
+    $(BUILDDIR)/serial_link_test_node$(1).o $(CRT0_OBJ) $(LIB_OBJS) $(LINK)
+	mkdir -p $$(dir $$@)
+	$(RISCV_CC) -o $$@ $$(filter-out $(LINK), $$^) $(RISCV_LDFLAGS) -T$(LINK)
+ 
+# Disassembly dump
+$(BINDIR)/serial_link_test_node$(1).dump: $(BINDIR)/serial_link_test_node$(1).elf
+	mkdir -p $$(dir $$@)
+	$(RISCV_OBJDUMP) -D -s $$< > $$@
+ 
+# Verilog hex
+$(BINDIR)/serial_link_test_node$(1).hex: $(BINDIR)/serial_link_test_node$(1).elf
+	mkdir -p $$(dir $$@)
+	$(RISCV_OBJCOPY) -O verilog $$< $$@
+ 
+# Collect into aggregate lists (appended each iteration)
+NODE_TARGETS += \
+    $(BINDIR)/serial_link_test_node$(1).elf \
+    $(BINDIR)/serial_link_test_node$(1).dump \
+    $(BINDIR)/serial_link_test_node$(1).hex
+endef
+ 
+# Instantiate rules for every node ID
+$(foreach id,$(NODE_IDS),$(eval $(call NODE_RULES,$(id))))
+ 
 # Everything to be built
 ALL_TARGETS := $(PROG_NAMES:%=$(BINDIR)/%.elf) \
 	           $(PROG_NAMES:%=$(BINDIR)/%.dump) \
 	           $(PROG_NAMES:%=$(BINDIR)/%.hex)
 
+
 # Dependency files for automatic rebuilds
-DEPFILES := $(CRT0_OBJ:.o=.d) $(LIB_OBJS:.o=.d) $(PROG_OBJS:.o=.d)
-
+DEPFILES := $(CRT0_OBJ:.o=.d) $(LIB_OBJS:.o=.d) $(PROG_OBJS:.o=.d) \
+            $(foreach id,$(NODE_IDS),$(BUILDDIR)/serial_link_test_node$(id).d)
+ 
 # Ensure intermediate object files are not deleted after linking
-.SECONDARY: $(CRT0_OBJ) $(LIB_OBJS) $(PROG_OBJS)
+.SECONDARY: $(CRT0_OBJ) $(LIB_OBJS) $(PROG_OBJS) \
+            $(foreach id,$(NODE_IDS),$(BUILDDIR)/serial_link_test_node$(id).o)
 
-all: compile
+
+# Phonies
+.PHONY: all compile test_serial_link clean
+ 
+all: compile test_serial_link
+
+# Build every non-node program (original behaviour)
+compile: $(BINDIR) $(BUILDDIR) $(ALL_TARGETS)
+ 
+# Build every node binary
+test_serial_link: $(BINDIR) $(BUILDDIR) $(NODE_TARGETS)
+ 
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
@@ -94,12 +152,8 @@ $(BINDIR)/%.hex: $(BINDIR)/%.elf
 	mkdir -p $(dir $@)
 	$(RISCV_OBJCOPY) -O verilog $< $@
 
-# Phonies
-.PHONY: all clean compile
 
 clean:
 	rm -rf $(BINDIR) $(BUILDDIR)
-
-compile: $(BINDIR) $(BUILDDIR) $(ALL_TARGETS)
 
 -include $(DEPFILES)
