@@ -30,7 +30,7 @@ package user_pkg;
   // Recommended: place subordinates at 4KB boundaries (32'hXXXX_X000)
 
   /// Enum with user domain demultiplexer subordinate idxs
-  typedef enum bit [4:0]  {
+  typedef enum bit [2:0]  {
     UserError        = 0,
     SerialLinkSbr    = 1,
     SerialLinkConfig = 2

@@ -86,10 +86,10 @@ package croc_pkg;
 
   /// Address map given to the main crossbar
   localparam addr_map_rule_t [3:0] CrocAddrMap = '{
-    '{ idx: XbarPeriph,  start_addr: 32'h0000_0000, end_addr: 32'h0FFF_E000 },
+    '{ idx: XbarPeriph,  start_addr: 32'h0000_0000, end_addr: 32'h0300_C000 },
     '{ idx: XbarUser,    start_addr: 32'h0FFF_F000, end_addr: 32'hFFFF_FFFF },
-    '{ idx: XbarBank0,   start_addr: 32'h0FFF_E000, end_addr: 32'h0FFF_E800 },
-    '{ idx: XbarBank0+1, start_addr: 32'h0FFF_E800, end_addr: 32'h0FFF_F000 }
+    '{ idx: XbarBank0,   start_addr: 32'h0400_0000, end_addr: 32'h0400_0800 },
+    '{ idx: XbarBank0+1, start_addr: 32'h0400_0800, end_addr: 32'h0400_A000 }
   };
 
   // +1 for additional OBI error

@@ -9,7 +9,6 @@
 #include "util.h"
 #include "serial_link.h"
 #include "config.h"
-#include "print.h"
 
 
 #ifndef NUM_NODES
@@ -36,7 +35,7 @@
 
 #define TEST_ADDR(dst, src, j) \
     (((uint32_t)(dst) << ADDR_DEST_SHIFT) | \
-     (0x0FFFEA99 + ( (uint32_t)(src-1) * N_TESTS + (uint32_t)(j))))
+     (SRAM_BANK_1_BASE_ADDR + 0x280 + ( (uint32_t)(src-1) * N_TESTS + (uint32_t)(j))*4U))
 
 #define TEST_DATA(src, dst, j)   ((uint32_t)((src) << 16 | (dst) << 8 | (j)))
 
@@ -44,8 +43,7 @@ int main() {
     slink_set_node_id(NODE_ID);
     
     if(slink_get_node_id() != NODE_ID){
-        printf("Set ID err");
-        return 2;
+        return 1;
     }
 
     uint32_t compare_data[NUM_NODES][N_TESTS];
@@ -81,7 +79,7 @@ int main() {
         i_idx++;
     }
     if(errors > 0){
-        return 2;
+        return errors+1;
     }
 
 
