@@ -36,8 +36,8 @@ SRCDIR   ?= lib/src
 INCDIR   ?= lib/inc
 
 # Serial link ring test configuration
-# NUM_NODES: total nodes in the system (default 15)
-NUM_NODES  ?= 15
+# NUM_NODES: total nodes in the system (default 3)
+NUM_NODES  ?= 3
 N_TESTS    ?= 5
 NODE_IDS   := $(shell seq 1 $(shell expr $(NUM_NODES)))
 

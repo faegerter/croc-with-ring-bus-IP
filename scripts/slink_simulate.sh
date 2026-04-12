@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 
-set -e  # Exit on error
+set -e
 
 # Default values
 NUM_NODES=3
+N_TESTS=1
 
-# Help function
 print_help() {
-  echo "Usage: $0 [--num-nodes N]"
+  echo "Usage: $0 [--num-nodes N] [--n-tests T]"
   echo ""
   echo "Options:"
   echo "  --num-nodes N   Number of nodes (default: 3)"
+  echo "  --n-tests T     Number of tests (default: 1)"
   echo "  -h, --help      Show this help message"
 }
 
@@ -26,6 +27,15 @@ while [[ "$#" -gt 0 ]]; do
         exit 1
       fi
       ;;
+    --n-tests)
+      if [[ -n "$2" && "$2" != --* ]]; then
+        N_TESTS="$2"
+        shift 2
+      else
+        echo "Error: --n-tests requires a numeric argument"
+        exit 1
+      fi
+      ;;
     -h|--help)
       print_help
       exit 0
@@ -38,20 +48,28 @@ while [[ "$#" -gt 0 ]]; do
   esac
 done
 
-# Validate NUM_NODES is a positive integer
-if ! [[ "$NUM_NODES" =~ ^[0-9]+$ ]] || [[ "$NUM_NODES" -lt 1 ]]; then
-  echo "Error: --num-nodes must be a positive integer"
-  exit 1
-fi
+# Validation
+for val in "$NUM_NODES" "$N_TESTS"; do
+  if ! [[ "$val" =~ ^[0-9]+$ ]] || [[ "$val" -lt 1 ]]; then
+    echo "Error: values must be positive integers"
+    exit 1
+  fi
+done
 
-echo "Running with NUM_NODES=$NUM_NODES"
+echo "Running with NUM_NODES=$NUM_NODES, N_TESTS=$N_TESTS"
 
-# --- Your workflow ---
+# --- Workflow inside oseda environment ---
 oseda -2025.12 bash <<EOF
-  cd ..
-  bender update
-  cd sw && make all
-  cd ../verilator
-  ./run_verilator.sh --flist
-  ./run_verilator.sh --ring --num-nodes $NUM_NODES --build --run ../sw/bin
+set -e
+
+cd ..
+bender update
+
+cd sw
+make clean
+make test_serial_link NUM_NODES=$NUM_NODES N_TESTS=$N_TESTS
+
+cd ../verilator
+./run_verilator.sh --flist
+./run_verilator.sh --ring --num-nodes $NUM_NODES --build --run ../sw/bin
 EOF

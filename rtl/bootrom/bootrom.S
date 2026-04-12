@@ -20,9 +20,9 @@
 # Trap handling:
 # The bootrom trap handler saves/restores caller-saved registers and dispatches
 # to user handlers via a function pointer vector table at fixed addresses:
-# - 0x1000_0000: j _start (skip table)
-# - 0x1000_0004: .word croc_exception_handler (function pointer)
-# - 0x1000_0008: .word croc_interrupt_handler (function pointer)
+# - 0x0400_0000: j _start (skip table)
+# - 0x0400_0004: .word croc_exception_handler (function pointer)
+# - 0x0400_0008: .word croc_interrupt_handler (function pointer)
 #
 # Fixed section offsets (from base 0x0200_0000):
 # 0x000  _start                 (WFI trampoline + boot)
@@ -114,12 +114,12 @@ _trap_handler_wrapper:
   # Read trap cause
   # mcause[31] == 1 -> Interrupt
   # mcause[31] == 0 -> Exception
-  lui     t0, 0x10000  # t0 = SRAM base (0x1000_0000)
+  lui     t0, 0x04000  # t0 = SRAM base (0x0400_0000)
   csrr    a0, mcause
   blt     a0, zero, _handle_interrupt
 
   # Exception: call handler via SRAM vector table
-  lw      t1, 4(t0)    # t1 = *(0x1000_0004)
+  lw      t1, 4(t0)    # t1 = *(0x0400_0004)
   jalr    ra, 0(t1)    # Call exception handler
   j       _trap_exit
 
@@ -130,7 +130,7 @@ _trap_handler_wrapper:
 _handle_interrupt:
   slli    a0, a0, 1    # Strip MSB (shift left)
   srli    a0, a0, 1    # Restore (shift right) -> a0 = interrupt ID
-  lw      t1, 8(t0)    # t1 = *(0x1000_0008)
+  lw      t1, 8(t0)    # t1 = *(0x0400_0008)
   jalr    ra, 0(t1)    # Call interrupt handler
   j       _trap_exit
 

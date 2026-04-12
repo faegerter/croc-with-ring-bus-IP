@@ -43,10 +43,10 @@ uint32_t slink_get_tx_clk_end(){
     return *reg32(SLINK_CFG_BASE_ADDR, SLINK_REG_TX_PHY_CLK_END_0_REG_OFFSET);
 }
 
-void slink_send_data(uint32_t address, uint32_t data){
-    *reg32(address, 0) = data;
+void __attribute__((noinline)) slink_send_data(uint32_t address, uint32_t data){
+    *((volatile uint32_t*)address) = data;
 }
 
-uint32_t slink_read_data(uint32_t address){
-    return *reg32(address, 0);
+uint32_t __attribute__((noinline)) slink_read_data(uint32_t address){
+    return *((volatile uint32_t*)address);
 }

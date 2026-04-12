@@ -9,7 +9,7 @@
 # Minimal SRAM startup stub.
 # Register init, trap handling, and EOC are in the bootrom.
 # This file provides:
-# - Vector table at 0x1000_0000 (j _start + function pointers for
+# - Vector table at 0x0400_0000 (j _start + function pointers for
 #   exception/interrupt handlers read by the bootrom trap handler)
 # - _start: set SP and GP, then tail-call main
 # - Weak default handlers (just ret)

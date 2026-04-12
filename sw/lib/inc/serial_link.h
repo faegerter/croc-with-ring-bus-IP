@@ -45,5 +45,5 @@ uint32_t slink_get_tx_clk_start();
 void slink_set_tx_clk_end(uint32_t clk_end);
 uint32_t slink_get_tx_clk_end();
 
-void slink_send_data(uint32_t address, uint32_t data);
-uint32_t slink_read_data(uint32_t address);
+void __attribute__((noinline)) slink_send_data(uint32_t address, uint32_t data);
+uint32_t __attribute__((noinline)) slink_read_data(uint32_t address);

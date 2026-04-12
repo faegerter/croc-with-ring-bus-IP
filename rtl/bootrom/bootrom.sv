@@ -14,7 +14,7 @@
 /// 3. Sets mtvec to bootrom trap handler
 /// 4. Reads boot address from soc_ctrl, jumps there with jalr zero (ra = &_eoc)
 /// 5. On main() return: _eoc packs retval, writes CORESTATUS, halts
-/// Trap handler dispatches to SRAM function pointer table at 0x1000_0000.
+/// Trap handler dispatches to SRAM function pointer table at 0x0400_0000.
 /// Source: bootrom.S
 module bootrom #(
     /// The OBI configuration for all ports.
@@ -90,10 +90,10 @@ module bootrom #(
         32'h00D12823, // 0x02000220: sw a3,16(sp)
         32'h00E12423, // 0x02000224: sw a4,8(sp)
         32'h00F12023, // 0x02000228: sw a5,0(sp)
-        32'h100002B7, // 0x0200022C: lui t0,0x10000
+        32'h040002B7, // 0x0200022C: lui t0,0x4000
         32'h34202573, // 0x02000230: csrr a0,mcause
         32'h00054863, // 0x02000234: bltz a0,2000244 <_handle_interrupt>
-        32'h0042A303, // 0x02000238: lw t1,4(t0) # 10000004 <__global_pointer$+0xdffe4d4>
+        32'h0042A303, // 0x02000238: lw t1,4(t0) # 04000004 <__global_pointer$+0xdffe4d4>
         32'h000300E7, // 0x0200023C: jalr t1
         32'h0C00006F, // 0x02000240: j 2000300 <_trap_exit>
         32'h00151513, // 0x02000244: slli a0,a0,0x1
