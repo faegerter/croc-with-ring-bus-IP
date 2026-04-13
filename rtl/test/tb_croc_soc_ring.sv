@@ -163,6 +163,7 @@ module tb_croc_soc_ring #(
         automatic logic [31:0] tb_data;
 
         // Derive path: NODE_IDs are 1-indexed in the C code
+        //$sformat(hex_path, "%s/helloworld.hex", bin_dir);
         $sformat(hex_path, "%s/serial_link_test_node%0d.hex", bin_dir, i + 1);
         
         $display("@%t | [Node %0d] Binary: %s", $time, i, hex_path);

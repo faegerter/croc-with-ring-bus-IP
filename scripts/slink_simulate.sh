@@ -4,7 +4,7 @@ set -e
 
 # Default values
 NUM_NODES=3
-N_TESTS=1
+N_TESTS=5
 
 print_help() {
   echo "Usage: $0 [--num-nodes N] [--n-tests T]"

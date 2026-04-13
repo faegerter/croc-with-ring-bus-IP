@@ -42,8 +42,8 @@ package user_pkg;
   localparam croc_pkg::addr_map_rule_t [1:0] UserAddrMap = '{
     '{
       idx:        SerialLinkConfig,
-      start_addr: croc_pkg::UserBaseAddr,
-      end_addr:   croc_pkg::UserBaseAddr + slink_reg_pkg::SLINK_REG_SIZE
+      start_addr: 32'h0FFF_F000,
+      end_addr:   32'h0FFF_F000 + slink_reg_pkg::SLINK_REG_SIZE
     },
     '{
       idx:        SerialLinkSbr,

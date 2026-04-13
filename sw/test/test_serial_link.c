@@ -33,9 +33,9 @@
 
 #define ADDR_DEST_SHIFT  28U
 
-#define TEST_ADDR(dst, src, j) (((uint32_t)(dst) << ADDR_DEST_SHIFT) | (SRAM_BANK_1_BASE_ADDR))// + 0x00000010 + ( (uint32_t)(src-1) * N_TESTS + (uint32_t)(j))*4U))
+#define TEST_ADDR(dst, src, j) (((uint32_t)(dst) << ADDR_DEST_SHIFT) | (SRAM_BANK_1_BASE_ADDR) + ((uint32_t)(src-1) * N_TESTS + (uint32_t)(j))*4U)
 
-#define TEST_DATA(src, dst, j)   ((uint32_t)((src) << 16 | (dst) << 8 | (j)))
+#define TEST_DATA(src, dst, j) ((uint32_t)((src) << 16 | (dst) << 8 | (j)))
 
 int main() {
     slink_set_node_id(NODE_ID);
@@ -44,30 +44,40 @@ int main() {
         return 1;
     }
 
-    uint32_t errors = 0;
+    uint32_t compare_data[NUM_NODES-1][N_TESTS];
 
-    for(int i = 1; i <= NUM_NODES; i++){ 
+    uint32_t i_idx = 0;;
+    for(int i = 0; i < NUM_NODES; i++){ 
         if(i == NODE_ID){
             continue;
         }
-        else{
-            for(int j = 0; j < N_TESTS; j++){
-                uint32_t addr = TEST_ADDR(i, NODE_ID, j);
-                uint32_t data = TEST_DATA(NODE_ID, i, j);
-                slink_read_data(addr);
-                //slink_send_data(addr, data);
-                //if(slink_read_data(addr) != data){
-                //    errors++;
-                //}
+        for(int j = 0; j < N_TESTS; j++){
+            uint32_t addr = TEST_ADDR(i, NODE_ID, j);
+            uint32_t data = TEST_DATA(NODE_ID, i, j);
+            slink_send_data(addr, data);
+            compare_data[i_idx][j] = data; 
+        }
+        i_idx++;
+    }
+    
+    i_idx = 0;
+    uint32_t errors = 0;
+
+    for(int i = 0; i < NUM_NODES; i++){
+        if(i == NODE_ID){
+            continue;
+        }
+        for(int j = 0; j < N_TESTS; j++){
+            uint32_t addr = TEST_ADDR(i, NODE_ID, j);
+            if(slink_read_data(addr) != compare_data[i_idx][j]){
+                errors++;
             }
         }
+        i_idx++;
     }
-
-    
     if(errors > 0){
-        return errors+1;
+        return errors;
     }
-
 
     return 0;
 }

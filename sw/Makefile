@@ -44,6 +44,10 @@ NODE_IDS   := $(shell seq 1 $(shell expr $(NUM_NODES)))
 # Source file that contains the node-specific main()
 SLINK_TEST_SRC ?= test/test_serial_link.c
 
+SLINK_TEST_LIB_SOURCES := $(SRCDIR)/serial_link.c 
+SLINK_TEST_LIB_OBJS    := $(addsuffix .o, $(addprefix $(BUILDDIR)/, \
+                           $(basename $(SLINK_TEST_LIB_SOURCES))))
+
 
 # Collecting source files
 LIB_SOURCES  := $(wildcard $(SRCDIR)/*.[cS])
@@ -70,7 +74,7 @@ $(BUILDDIR)/serial_link_test_node$(1).o: $(SLINK_TEST_SRC)
  
 # Link node ELF
 $(BINDIR)/serial_link_test_node$(1).elf: \
-    $(BUILDDIR)/serial_link_test_node$(1).o $(CRT0_OBJ) $(LIB_OBJS) $(LINK)
+    $(BUILDDIR)/serial_link_test_node$(1).o $(CRT0_OBJ) $(SLINK_TEST_LIB_OBJS) $(LINK)
 	mkdir -p $$(dir $$@)
 	$(RISCV_CC) -o $$@ $$(filter-out $(LINK), $$^) $(RISCV_LDFLAGS) -T$(LINK)
  
