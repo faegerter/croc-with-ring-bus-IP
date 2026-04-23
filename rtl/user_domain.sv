@@ -5,6 +5,8 @@
 // Authors:
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
 
+`include "slink_obi/typedef.svh"
+
 module user_domain import user_pkg::*; import croc_pkg::*; import slink_pkg::*; #(
   parameter int unsigned GpioCount = 16,
   parameter int unsigned NumExternalIrqs = 4,
