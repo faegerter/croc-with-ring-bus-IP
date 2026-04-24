@@ -67,8 +67,10 @@ utl::report "###################################################################
 # The sealring is added after OpenROAD
 # hence the OR die area is the final chip size minus the sealring thickness on each side
 
-set chipH    1916; # OR die height (top to bottom)
-set chipW    1916; # OR die width (left to right)
+# set chipH    1916; # OR die height (top to bottom)
+# set chipW    1916; # OR die width (left to right)
+set chipH    2200; # OR die height (top to bottom)
+set chipW    2200; # OR die width (left to right)
 set padD      180; # pad depth (edge to core)
 set padW       80; # pad width (beachfront)
 set padBond    70; # bonding pad size

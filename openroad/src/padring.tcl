@@ -100,14 +100,14 @@ place_pad -row IO_EAST  -location [expr {$eastStart +  2*$eastPitch}] "pad_gpio1
 place_pad -row IO_EAST  -location [expr {$eastStart +  3*$eastPitch}] "pad_gpio13_io"    ; # pin no:  4
 place_pad -row IO_EAST  -location [expr {$eastStart +  4*$eastPitch}] "pad_gpio14_io"    ; # pin no:  5
 place_pad -row IO_EAST  -location [expr {$eastStart +  5*$eastPitch}] "pad_gpio15_io"    ; # pin no:  6
-place_pad -row IO_EAST  -location [expr {$eastStart +  6*$eastPitch}] "pad_gpio16_io"    ; # pin no:  7
-place_pad -row IO_EAST  -location [expr {$eastStart +  7*$eastPitch}] "pad_gpio17_io"    ; # pin no:  8
-place_pad -row IO_EAST  -location [expr {$eastStart +  8*$eastPitch}] "pad_gpio18_io"    ; # pin no:  9
-place_pad -row IO_EAST  -location [expr {$eastStart +  9*$eastPitch}] "pad_gpio19_io"    ; # pin no: 10
-place_pad -row IO_EAST  -location [expr {$eastStart + 10*$eastPitch}] "pad_gpio20_io"    ; # pin no: 11
-place_pad -row IO_EAST  -location [expr {$eastStart + 11*$eastPitch}] "pad_gpio21_io"    ; # pin no: 12
-place_pad -row IO_EAST  -location [expr {$eastStart + 12*$eastPitch}] "pad_gpio22_io"    ; # pin no: 13
-place_pad -row IO_EAST  -location [expr {$eastStart + 13*$eastPitch}] "pad_gpio23_io"    ; # pin no: 14
+place_pad -row IO_EAST  -location [expr {$eastStart +  6*$eastPitch}] "pad_slink_ddr0_o"    ; # pin no:  7
+place_pad -row IO_EAST  -location [expr {$eastStart +  7*$eastPitch}] "pad_slink_ddr1_o"    ; # pin no:  8
+place_pad -row IO_EAST  -location [expr {$eastStart +  8*$eastPitch}] "pad_slink_ddr2_o"    ; # pin no:  9
+place_pad -row IO_EAST  -location [expr {$eastStart +  9*$eastPitch}] "pad_slink_ddr3_o"    ; # pin no: 10
+place_pad -row IO_EAST  -location [expr {$eastStart + 10*$eastPitch}] "pad_slink_ddr4_o"    ; # pin no: 11
+place_pad -row IO_EAST  -location [expr {$eastStart + 11*$eastPitch}] "pad_slink_ddr5_o"    ; # pin no: 12
+place_pad -row IO_EAST  -location [expr {$eastStart + 12*$eastPitch}] "pad_slink_ddr6_o"    ; # pin no: 13
+place_pad -row IO_EAST  -location [expr {$eastStart + 13*$eastPitch}] "pad_slink_ddr7_o"    ; # pin no: 14
 place_pad -row IO_EAST  -location [expr {$eastStart + 14*$eastPitch}] "pad_vss2"         ; # pin no: 15
 place_pad -row IO_EAST  -location [expr {$eastStart + 15*$eastPitch}] "pad_vdd2"         ; # pin no: 16
 
@@ -120,18 +120,18 @@ set northStart [expr {$chipW - $cornerToPad - $padW}]
 
 place_pad -row IO_NORTH -location [expr {$northStart -  0*$northPitch}] "pad_vssio3"          ; # pin no:  1
 place_pad -row IO_NORTH -location [expr {$northStart -  1*$northPitch}] "pad_vddio3"          ; # pin no:  2
-place_pad -row IO_NORTH -location [expr {$northStart -  2*$northPitch}] "pad_gpio24_io"       ; # pin no:  3
-place_pad -row IO_NORTH -location [expr {$northStart -  3*$northPitch}] "pad_gpio25_io"       ; # pin no:  4
-place_pad -row IO_NORTH -location [expr {$northStart -  4*$northPitch}] "pad_gpio26_io"       ; # pin no:  5
-place_pad -row IO_NORTH -location [expr {$northStart -  5*$northPitch}] "pad_gpio27_io"       ; # pin no:  6
-place_pad -row IO_NORTH -location [expr {$northStart -  6*$northPitch}] "pad_gpio28_io"       ; # pin no:  7
-place_pad -row IO_NORTH -location [expr {$northStart -  7*$northPitch}] "pad_gpio29_io"       ; # pin no:  8
-place_pad -row IO_NORTH -location [expr {$northStart -  8*$northPitch}] "pad_gpio30_io"       ; # pin no:  9
-place_pad -row IO_NORTH -location [expr {$northStart -  9*$northPitch}] "pad_gpio31_io"       ; # pin no: 10
-place_pad -row IO_NORTH -location [expr {$northStart - 10*$northPitch}] "pad_unused0_o"       ; # pin no: 11
-place_pad -row IO_NORTH -location [expr {$northStart - 11*$northPitch}] "pad_unused1_o"       ; # pin no: 12
-place_pad -row IO_NORTH -location [expr {$northStart - 12*$northPitch}] "pad_unused2_o"       ; # pin no: 13
-place_pad -row IO_NORTH -location [expr {$northStart - 13*$northPitch}] "pad_unused3_o"       ; # pin no: 14
+place_pad -row IO_NORTH -location [expr {$northStart -  2*$northPitch}] "pad_slink_ddr0_i"       ; # pin no:  3
+place_pad -row IO_NORTH -location [expr {$northStart -  3*$northPitch}] "pad_slink_ddr1_i"       ; # pin no:  4
+place_pad -row IO_NORTH -location [expr {$northStart -  4*$northPitch}] "pad_slink_ddr2_i"       ; # pin no:  5
+place_pad -row IO_NORTH -location [expr {$northStart -  5*$northPitch}] "pad_slink_ddr3_i"       ; # pin no:  6
+place_pad -row IO_NORTH -location [expr {$northStart -  6*$northPitch}] "pad_slink_ddr4_i"       ; # pin no:  7
+place_pad -row IO_NORTH -location [expr {$northStart -  7*$northPitch}] "pad_slink_ddr5_i"       ; # pin no:  8
+place_pad -row IO_NORTH -location [expr {$northStart -  8*$northPitch}] "pad_slink_ddr6_i"       ; # pin no:  9
+place_pad -row IO_NORTH -location [expr {$northStart -  9*$northPitch}] "pad_slink_ddr7_i"       ; # pin no: 10
+place_pad -row IO_NORTH -location [expr {$northStart - 10*$northPitch}] "pad_slink_credit_recv_clk_i"       ; # pin no: 11
+place_pad -row IO_NORTH -location [expr {$northStart - 11*$northPitch}] "pad_slink_credit_rtrn_clk_o"       ; # pin no: 12
+place_pad -row IO_NORTH -location [expr {$northStart - 12*$northPitch}] "pad_slink_ddr_rcv_clk_i"       ; # pin no: 13
+place_pad -row IO_NORTH -location [expr {$northStart - 13*$northPitch}] "pad_slink_ddr_rcv_clk_o"       ; # pin no: 14
 place_pad -row IO_NORTH -location [expr {$northStart - 14*$northPitch}] "pad_vss3"            ; # pin no: 15
 place_pad -row IO_NORTH -location [expr {$northStart - 15*$northPitch}] "pad_vdd3"            ; # pin no: 16
 

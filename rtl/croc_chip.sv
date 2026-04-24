@@ -123,14 +123,14 @@ module croc_chip import croc_pkg::*; #() (
     sg13g2_IOPadIn        pad_slink_ddr5_i            (.pad(slink_ddr5_i),            .p2c(soc_slink_ddr_i[0][5]));
     sg13g2_IOPadIn        pad_slink_ddr6_i            (.pad(slink_ddr6_i),            .p2c(soc_slink_ddr_i[0][6]));
     sg13g2_IOPadIn        pad_slink_ddr7_i            (.pad(slink_ddr7_i),            .p2c(soc_slink_ddr_i[0][7]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr0_0            (.pad(slink_ddr0_o),            .c2p(soc_slink_ddr_o[0][0]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr1_0            (.pad(slink_ddr1_o),            .c2p(soc_slink_ddr_o[0][1]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr2_0            (.pad(slink_ddr2_o),            .c2p(soc_slink_ddr_o[0][2]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr3_0            (.pad(slink_ddr3_o),            .c2p(soc_slink_ddr_o[0][3]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr4_0            (.pad(slink_ddr4_o),            .c2p(soc_slink_ddr_o[0][4]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr5_0            (.pad(slink_ddr5_o),            .c2p(soc_slink_ddr_o[0][5]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr6_0            (.pad(slink_ddr6_o),            .c2p(soc_slink_ddr_o[0][6]));
-    sg13g2_IOPadOut16mA   pad_slink_ddr7_0            (.pad(slink_ddr7_o),            .c2p(soc_slink_ddr_o[0][7]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr0_o            (.pad(slink_ddr0_o),            .c2p(soc_slink_ddr_o[0][0]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr1_o            (.pad(slink_ddr1_o),            .c2p(soc_slink_ddr_o[0][1]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr2_o            (.pad(slink_ddr2_o),            .c2p(soc_slink_ddr_o[0][2]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr3_o            (.pad(slink_ddr3_o),            .c2p(soc_slink_ddr_o[0][3]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr4_o            (.pad(slink_ddr4_o),            .c2p(soc_slink_ddr_o[0][4]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr5_o            (.pad(slink_ddr5_o),            .c2p(soc_slink_ddr_o[0][5]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr6_o            (.pad(slink_ddr6_o),            .c2p(soc_slink_ddr_o[0][6]));
+    sg13g2_IOPadOut16mA   pad_slink_ddr7_o            (.pad(slink_ddr7_o),            .c2p(soc_slink_ddr_o[0][7]));
     sg13g2_IOPadIn        pad_slink_credit_recv_clk_i (.pad(slink_credit_recv_clk_i), .p2c(soc_slink_credit_recv_clk_i));
     sg13g2_IOPadOut16mA   pad_slink_credit_rtrn_clk_o (.pad(slink_credit_rtrn_clk_o), .c2p(soc_slink_credit_rtrn_clk_o));
 
