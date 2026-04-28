@@ -37,8 +37,10 @@ set pdk_pad_lef   ../ihp13/bondpad/lef
 define_corners tt ff
 
 puts "Init standard cells"
-read_liberty -corner tt ${pdk_cells_lib}/sg13g2_stdcell_typ_1p20V_25C.lib
-read_liberty -corner ff ${pdk_cells_lib}/sg13g2_stdcell_fast_1p32V_m40C.lib
+# read_liberty -corner tt ${pdk_cells_lib}/sg13g2_stdcell_typ_1p20V_25C.lib
+# read_liberty -corner ff ${pdk_cells_lib}/sg13g2_stdcell_fast_1p32V_m40C.lib
+read_liberty -corner tt ${pdk_cells_lib}/ez130_8t_tt_1p20v_25c.lib
+read_liberty -corner ff ${pdk_cells_lib}/ez130_8t_ff_1p32v_m40c.lib
 
 puts "Init IO cells"
 read_liberty -corner tt ${pdk_io_lib}/sg13g2_io_typ_1p2V_3p3V_25C.lib
@@ -54,10 +56,12 @@ foreach file [glob -directory $pdk_sram_lib *_fast_1p32V_m55C.lib] {
 }
 
 puts "Init tech-lef"
-read_lef ${pdk_cells_lef}/sg13g2_tech.lef
+# read_lef ${pdk_cells_lef}/sg13g2_tech.lef
+read_lef ${pdk_cells_lef}/ez130_tech.lef
 
 puts "Init cell-lef"
-read_lef ${pdk_cells_lef}/sg13g2_stdcell.lef
+# read_lef ${pdk_cells_lef}/sg13g2_stdcell.lef
+read_lef ${pdk_cells_lef}/ez130_8t.lef
 read_lef ${pdk_io_lef}/sg13g2_io.lef
 read_lef ${pdk_pad_lef}/bondpad_70x70.lef
 
@@ -72,21 +76,32 @@ proc setDefaultParasitics {} {
 }
 
 # Tie cell pins
-set tieHiPin "sg13g2_tiehi/L_HI"
-set tieLoPin "sg13g2_tielo/L_LO"
+# set tieHiPin "sg13g2_tiehi/L_HI"
+set tieHiPin "TIEHI/Y"
+# set tieLoPin "sg13g2_tielo/L_LO"
+set tieLoPin "TIELO/Y"
 
 # Tap cell insertion
 proc insertTapCells {} {
 	# no tap cells in this PDK
+	# tapcell \
+	# 	-tapcell_master WELLTAP \
+	# 	-distance 20 \
+	# 	-halo_width_x 2 \
+	# 	-halo_width_y 2
 }
 
-set ctsBuf [ list sg13g2_buf_16 sg13g2_buf_8 sg13g2_buf_4 sg13g2_buf_2 ]
-set ctsBufRoot sg13g2_buf_8
+# set ctsBuf [ list sg13g2_buf_16 sg13g2_buf_8 sg13g2_buf_4 sg13g2_buf_2 ]
+# set ctsBufRoot sg13g2_buf_8
+#set ctsBuf [ list BUFX64 BUFX48 BUFX44 BUFX32 BUFX24 BUFX16 BUFX12 BUFX8 BUFX6 BUFX4 BUFX3 BUFX2 ]
+set ctsBuf [ list BUFX32 BUFX24 BUFX16 BUFX12 BUFX8 BUFX6 BUFX4 BUFX3 BUFX2 ]
+set ctsBufRoot BUFX8
 
 # disallow OR from inserting these cells
 set dont_use_cells [list sg13g2_IOPad* ]
 
-set stdfill [ list sg13g2_fill_8 sg13g2_fill_4 sg13g2_fill_2 sg13g2_fill_1 ]
+# set stdfill [ list sg13g2_fill_8 sg13g2_fill_4 sg13g2_fill_2 sg13g2_fill_1 ]
+set stdfill [ list FILLER16 FILLER8 FILLER4 FILLER2 FILLER1 ]
 
 
 set iocorner sg13g2_Corner

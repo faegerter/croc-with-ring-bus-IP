@@ -198,6 +198,7 @@ proc report_metrics { when {include_erc true} {include_clock_skew false} } {
 # see: https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/blob/master/flow/scripts/save_images.tcl
 # and: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/gui/README.md
 proc report_image { report_name {full_die false} {place false} {cts false} {routing false} } {
+  return;
   global report_dir
   set resolution  [ord::dbu_to_microns [[dpl::get_row_site] getHeight]]
   set area        [expr {$full_die ? [ord::get_die_area] : [ord::get_core_area]}]

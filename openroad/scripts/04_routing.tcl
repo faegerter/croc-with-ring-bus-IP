@@ -96,7 +96,8 @@ utl::report "###################################################################
 
 # Repair antennas (requires LEF cell with class 'CORE ANTENNACELL')
 # ratio_margin: 30% safety margin on antenna ratios
-repair_antennas -ratio_margin 30 -iterations 5
+repair_antennas ANTENNA4 -ratio_margin 30 -iterations 5
+# repair_antennas -ratio_margin 30 -iterations 5
 
 utl::report "Detailed route"
 set_thread_count 8

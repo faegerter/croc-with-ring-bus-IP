@@ -57,7 +57,7 @@
   #    
 
   libs    = SG13G2_1.3.1 \
-            open_stdcell_rev0.1.3 \
+            ez130_8t_stdcell_v1.0 \
             open_io_v0.2 \ 
             open_sram_v2.1
 
