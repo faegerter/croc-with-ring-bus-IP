@@ -8,4 +8,4 @@ overrides:
   obi: { path: "rtl/obi" }
   riscv-dbg: { path: "rtl/riscv-dbg" }
   idma: { path: "rtl/idma" }
-  slink_obi: { path: "rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology"}
+  slink_obi: { git: "https://github.com/faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git", rev: "7439400" }
