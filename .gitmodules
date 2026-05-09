@@ -4,6 +4,3 @@
 [submodule "artistic/artistic"]
 	path = artistic/artistic
 	url = git@github.com:pulp-platform/artistic.git
-[submodule "rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology"]
-	path = rtl/user_domain/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology
-	url = git@github.com:faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git
