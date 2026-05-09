@@ -18,7 +18,7 @@ dependencies:
   obi_peripherals:      { git: "https://github.com/pulp-platform/obi_peripherals.git",      rev: 21ee04d    } # UART
   idma:                 { git: "https://github.com/pulp-platform/idma.git",                 rev: "__deploy__e618e4d__master" } # master with generated files
   cve2:                 { path: "rtl/cve2" } # a vendor package (no Bender.yml), see below 
-  slink_obi:            { git: "https://github.com/faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git", rev: "7439400" }
+  slink_obi:            { path: "rtl/user_domain/serial_link" }
 
 sources:
   # Level 0
@@ -195,3 +195,14 @@ vendor_package:
       - { from: 'rtl/',                                            to: '',                      patch_dir: 'rtl/' }
       - { from: 'README.md',                                       to: 'README.md',             patch_dir: '' }
       - { from: 'doc/03_reference/images/blockdiagram.drawio.svg', to: 'blockdiagram.svg',      patch_dir: '' }
+
+
+  - name: slink_obi
+    target_dir: rtl/user_domain/serial_link
+    upstream: { git: "https://github.com/faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git", rev: "74394009fad35d8043766f9a2083f870bd1d11e3" }
+    patch_dir: "rtl/.patches/slink_obi"
+    mapping:
+      - { from: 'src/',               to: 'src/',                patch_dir: 'src/' }
+      - { from: 'include/slink_obi/', to: 'include/slink_obi/',  patch_dir: '' }
+      - { from: 'Bender.yml',         to: 'Bender.yml',          patch_dir: '' }
+      - { from: 'README.md',          to: 'README.md',           patch_dir: '' } 

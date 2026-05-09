@@ -67,10 +67,10 @@ packages:
     - common_cells
     - tech_cells_generic
   slink_obi:
-    revision: 74394009fad35d8043766f9a2083f870bd1d11e3
+    revision: null
     version: null
     source:
-      Git: https://github.com/faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git
+      Path: rtl/user_domain/serial_link
     dependencies:
     - axi_stream
     - common_cells
