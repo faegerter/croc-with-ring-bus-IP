@@ -4,6 +4,8 @@
 //
 // Authors:
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
+// - Fabian Aegerter         <faegerter@ethz.ch>
+// - Llorenç Muela Hausmann  <lmuela@ethz.ch>
 
 module croc_chip import croc_pkg::*; #() (
   input  wire clk_i,
@@ -78,8 +80,8 @@ module croc_chip import croc_pkg::*; #() (
 
     logic soc_status_o;
 
-    localparam int unsigned SlinkNumChannels = 1;
-    localparam int unsigned SlinkNumLanes = 8;
+    localparam int unsigned SlinkNumChannels = slink_reg_pkg::NumChannels;
+    localparam int unsigned SlinkNumLanes = slink_reg_pkg::NumLanes;
 
     logic [SlinkNumChannels-1:0] soc_slink_ddr_rcv_clk_i;
     logic [SlinkNumChannels-1:0] soc_slink_ddr_rcv_clk_o;    

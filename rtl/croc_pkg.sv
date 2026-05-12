@@ -4,6 +4,8 @@
 //
 // Authors:
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
+// - Fabian Aegerter         <faegerter@ethz.ch>
+// - Llorenç Muela Hausmann  <lmuela@ethz.ch>
 
 // header files for the two interconnect types used in Croc
 `include "obi/typedef.svh"

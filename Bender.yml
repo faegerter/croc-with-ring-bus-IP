@@ -199,7 +199,7 @@ vendor_package:
 
   - name: slink_obi
     target_dir: rtl/user_domain/serial_link
-    upstream: { git: "https://github.com/faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git", rev: "74394009fad35d8043766f9a2083f870bd1d11e3" }
+    upstream: { git: "https://github.com/faegerter/Improving-Serial-Link-and-Enabling-a-Ring-Bus-Topology.git", rev: "42698fe2b85674af2d67ab4fa2bd4ab122b8e698" }
     patch_dir: "rtl/.patches/slink_obi"
     mapping:
       - { from: 'src/',               to: 'src/',                patch_dir: 'src/' }

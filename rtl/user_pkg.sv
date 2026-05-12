@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: SHL-0.51
 //
 // Authors:
-// - Philippe Sauter <phsauter@iis.ee.ethz.ch>
+// - Philippe Sauter         <phsauter@iis.ee.ethz.ch>
+// - Fabian Aegerter         <faegerter@ethz.ch>
+// - Llorenç Muela Hausmann  <lmuela@ethz.ch>
 
 `include "obi/typedef.svh"
 `include "slink_obi/typedef.svh"

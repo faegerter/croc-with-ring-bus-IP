@@ -75,8 +75,8 @@ int main() {
         }
         i_idx++;
     }
-    if(errors > 0){
-        return errors;
+    if(errors > 0){ 
+        return errors+1; //Due to testbench and JTAG configuration. Outputs the correct error value in the testbench.
     }
 
     return 0;

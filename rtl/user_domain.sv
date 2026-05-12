@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: SHL-0.51
 //
 // Authors:
-// - Philippe Sauter <phsauter@iis.ee.ethz.ch>
+// - Philippe Sauter         <phsauter@iis.ee.ethz.ch>
+// - Fabian Aegerter         <faegerter@ethz.ch>
+// - Llorenç Muela Hausmann  <lmuela@ethz.ch>
 
 `include "slink_obi/typedef.svh"
 
@@ -27,8 +29,7 @@ module user_domain import user_pkg::*; import croc_pkg::*; import slink_pkg::*; 
   input  logic [      GpioCount-1:0] gpio_in_sync_i, // synchronized GPIO inputs
   output logic [NumExternalIrqs-1:0] interrupts_o,    // interrupts to core
 
-  //TODO SlinkNumChannels and lanes are defined in the croc_chip AND also in the slink_reg_pkg.
-  //We should check how to implement it properly also by removing GPIOs that aren't used. 
+
   input   logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_i,    
   output  logic  [SlinkNumChannels-1:0]                    slink_ddr_rcv_clk_o,    
   input   logic  [SlinkNumChannels-1:0][SlinkNumLanes-1:0] slink_ddr_i,            
@@ -211,7 +212,7 @@ module user_domain import user_pkg::*; import croc_pkg::*; import slink_pkg::*; 
   ) i_slink (
     .clk_i             ( clk_i                   ),
     .rst_ni            ( rst_ni                  ),
-    .testmode_i        ( 1'b0                    ), //TODO Check if we want to connect that
+    .testmode_i        ( testmode_i              ), 
     .obi_in_req_i      ( slink_obi_req_i         ),
     .obi_in_rsp_o      ( slink_obi_rsp_o         ),
     .obi_out_req_o     ( slink_obi_req_o         ),

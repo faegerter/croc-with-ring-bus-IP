@@ -4,6 +4,8 @@
 //
 // Authors:
 // - Philippe Sauter <phsauter@iis.ee.ethz.ch>
+// - Fabian Aegerter         <faegerter@ethz.ch>
+// - Llorenç Muela Hausmann  <lmuela@ethz.ch>
 
 module croc_soc import croc_pkg::*; #(
   parameter int unsigned GpioCount = 16,
