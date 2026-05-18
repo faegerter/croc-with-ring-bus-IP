@@ -202,6 +202,7 @@ module user_domain import user_pkg::*; import croc_pkg::*; import slink_pkg::*; 
     .obi_rsp_mgr_t   ( mgr_obi_rsp_t            ),
     .obi_req_sbr_t   ( sbr_obi_req_t            ),
     .obi_rsp_sbr_t   ( sbr_obi_rsp_t            ),
+    .obi_r_chan_sbr_t( sbr_obi_r_chan_t         ),
     .a_optional_t    ( sbr_obi_a_chan_t         ), 
     .r_optional_t    ( sbr_obi_r_chan_t         ),
     .a_chan_write_t  ( slink_obi_a_chan_write_t ),
