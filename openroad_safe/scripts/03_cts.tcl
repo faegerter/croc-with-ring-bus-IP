@@ -44,6 +44,9 @@ utl::report "###################################################################
 set clock_nets [get_nets -of_objects [get_pins -of_objects "*_reg" -filter "name == CLK"]]
 unset_dont_touch $clock_nets
 
+utl::report "Re-apply CTS clock exclusions (slink off-chip / generated clocks)"
+read_sdc src/constraints_prects.sdc
+
 utl::report "Repair clock inverters"
 repair_clock_inverters
 

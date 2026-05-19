@@ -183,6 +183,7 @@
 ../rtl/user_domain/serial_link/src/slink_prot_layer.sv
 ../rtl/user_domain/serial_link/src/slink_link_layer.sv
 ../rtl/user_domain/serial_link/src/slink_phys_layer.sv
+../rtl/user_domain/serial_link/src/slink_rsp_reorder.sv
 ../rtl/user_domain/serial_link/src/slink.sv
 ../rtl/croc_pkg.sv
 ../rtl/user_pkg.sv

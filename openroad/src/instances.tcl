@@ -14,22 +14,64 @@
 #     lappend macros $inst
 # }
 
+# technology dependent
+set DFF_CLK_PIN CLK
+set DFF_DATA_PIN D
+set DFF_OUTP_PIN Q
+
+set MUX_CONTROL_PIN S
+set MUX_OUT_PIN X
+set CLKGATE_GATE_PIN GATE
 
 # Macro names as produced by the yosys synthesis
 # Used for manual macro placement
 
 set CROC            i_croc_soc/i_croc
 set USER            i_croc_soc/i_user
+set SLINK 			$USER/i_slink
+set SLINK_LINK 		$SLINK.i_serial_link_data_link
+set SLINK_PHY0 		$SLINK.gen_phy_channels\[0\]
+set SLINK_TX 		$SLINK_PHY0.i_serial_link_physical.i_serial_link_physical_tx
+set SLINK_RX 		$SLINK_PHY0.i_serial_link_physical.i_serial_link_physical_rx
 set IBEX            $CROC/i_core_wrap.i_ibex
 set SRAM            $CROC/gen_sram_bank
 set JTAG            $CROC/i_dmi_jtag
 set SRAM_512x32     gen_512x32xBx1.i_cut
+
+set SL_IN       [get_ports slink_ddr?_i]
+set SL_OUT      [get_ports slink_ddr?_o]
+set SL_OUT_CLK  [get_ports slink_ddr_rcv_clk_o]
 
 # memory banks
 set sram {\[0\].i_sram/}
 set bank0_sram0 $SRAM$sram$SRAM_512x32
 set sram {\[1\].i_sram/}
 set bank1_sram0 $SRAM$sram$SRAM_512x32
+
+# TX internal divided data-launch clock, from clk_slow
+set SLINK_TX_SLOW_REG [get_fanin -to $SLINK_TX.clk_slow -startpoints_only -only_cells]
+set SLINK_TX_SLOW_Q   [get_pins -of_objects $SLINK_TX_SLOW_REG -filter "name == $DFF_OUTP_PIN"]
+set SLINK_TX_SLOW_CLK [get_pins -of_objects $SLINK_TX_SLOW_REG -filter "name == $DFF_CLK_PIN"]
+
+# port i_serial_link/ddr_rcv_clk_o
+set SLO_PHY_RCLK_REG [get_cells *ddr_rcv_clk_o*]
+set SLO_PHY_RCLK_Q   [get_pins -of_objects $SLO_PHY_RCLK_REG -filter "name == $DFF_OUTP_PIN"]
+set SLO_PHY_RCLK_CLK [get_pins -of_objects $SLO_PHY_RCLK_REG -filter "name == $DFF_CLK_PIN"]
+
+# Credit return: tc_clk_gating in slink_link_layer (sg13g2_slgcp_1 inside)
+set SLINK_CREDIT_ICG      $SLINK_LINK.i_clk_gate/gen_clkgate.i_clkgate
+set SLINK_CREDIT_ICG_CLK  [get_pins -of_objects $SLINK_CREDIT_ICG -filter "name == CLK"]
+set SLINK_CREDIT_ICG_GCLK [get_pins -of_objects $SLINK_CREDIT_ICG -filter "name == GCLK"]
+set SLINK_CREDIT_ICG_GATE [get_pins -of_objects $SLINK_CREDIT_ICG -filter "name == GATE"]
+
+# TX forwarded clock register
+# set SLINK_TX_FWDCLK_REG [get_cells *ddr_rcv_clk_o*reg*]
+# set SLINK_TX_FWDCLK_Q   [get_pins -of_objects $SLINK_TX_FWDCLK_REG -filter "name == $DFF_OUTP_PIN"]
+# set SLINK_TX_FWDCLK_CLK [get_pins -of_objects $SLINK_TX_FWDCLK_REG -filter "name == $DFF_CLK_PIN"]
+# CDC async nets
+set ASYNC_PINS_SL_RX     [get_nets $SLINK_RX.i_cdc_in.*async_*]
+set ASYNC_PINS_SL_CREDIT [get_nets $SLINK_LINK.i_credit_recv_cdc_fifo_gray.*async_*]
+
 
 # JTAG request and response CDCs
 # Goal: Find the async nets and their source and destination cells

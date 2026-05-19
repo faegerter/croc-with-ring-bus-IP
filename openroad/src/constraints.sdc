@@ -23,6 +23,11 @@ source src/instances.tcl
 set_load [expr 2 * 5.0 + 5.0] [all_outputs]
 set_driving_cell [all_inputs] -lib_cell sg13g2_IOPadOut16mA -pin pad
 
+# Serial link drives one pad per IO, but may have larger capacity (e.g. FPGA)
+set SLINK_OUT_PADS [get_ports {slink_ddr*_o slink_ddr_rcv_clk_o slink_credit_rtrn_clk_o}]
+set_load -min  4.0 $SLINK_OUT_PADS
+set_load -max 16.0 $SLINK_OUT_PADS
+
 
 ##################
 ## Input Clocks ##
@@ -39,6 +44,57 @@ create_clock -name clk_jtg -period $TCK_JTG [get_ports jtag_tck_i]
 set TCK_RTC 50.0
 create_clock -name clk_rtc -period $TCK_RTC [get_ports ref_clk_i]
 
+set TCK_SLI       [expr 4 * $TCK_SYS] ; # nominal slink rate (clk_sys / 4)
+set TCK_SLI_CRED  $TCK_SYS            ; # credit clock can match clk_sys
+create_clock -name clk_sli_rx   -period $TCK_SLI      [get_ports slink_ddr_rcv_clk_i]
+create_clock -name clk_sli_cred -period $TCK_SLI_CRED [get_ports slink_credit_recv_clk_i]
+
+
+######################
+## Generated Clocks ##
+######################
+
+# Create slow clock driving TX output (worst case: divided by 4)
+puts "SLINK slow TX clk: master-clk from [get_full_name $SLINK_TX_SLOW_CLK] & drives pins [get_full_name $SLINK_TX_SLOW_Q]"
+create_generated_clock -name clk_gen_slo_drv \
+    -edges {1 5 9} \
+    -source $SLINK_TX_SLOW_CLK \
+    $SLINK_TX_SLOW_Q
+
+# Create clock for serial link TX (worst case: divided by 4, +90 deg)
+puts "SLINK slow RX clk: master-clk from [get_full_name $SLO_PHY_RCLK_CLK] & drives pins [get_full_name $SLO_PHY_RCLK_Q]"
+create_generated_clock -name clk_gen_slo \
+    -edges {3 7 11} \
+    -source $SLO_PHY_RCLK_CLK \
+    $SLO_PHY_RCLK_Q
+
+
+
+
+puts "SLINK forwarded DDR clk pad: source [get_full_name $SLO_PHY_RCLK_CLK] -> [get_full_name $SL_OUT_CLK]"
+create_generated_clock -name clk_gen_slo -add \
+    -master_clock clk_sys \
+    -edges {3 7 11} \
+    -source $SLO_PHY_RCLK_CLK \
+    $SL_OUT_CLK
+
+# Credit return: gated clk_sys, worst case one enabled cycle per sys cycle
+puts "SLINK credit return clk: ICG GCLK [get_full_name $SLINK_CREDIT_ICG_GCLK] -> port slink_credit_rtrn_clk_o"
+create_generated_clock -name clk_gen_cred_rtrn \
+    -divide_by 1 \
+    -source $SLINK_CREDIT_ICG_CLK \
+    $SLINK_CREDIT_ICG_GCLK
+create_generated_clock -name clk_gen_cred_rtrn -add \
+    -master_clock clk_sys \
+    -divide_by 1 \
+    -source $SLINK_CREDIT_ICG_CLK \
+    [get_ports slink_credit_rtrn_clk_o]
+
+
+
+
+
+
 
 ##################################
 ## Clock Groups & Uncertainties ##
@@ -51,12 +107,28 @@ create_clock -name clk_rtc -period $TCK_RTC [get_ports ref_clk_i]
 set_clock_groups -asynchronous -name clk_groups_async \
      -group {clk_rtc} \
      -group {clk_jtg} \
-     -group {clk_sys}
+     -group {clk_sys clk_gen_slo_drv clk_gen_slo clk_gen_cred_rtrn} \
+     -group {clk_sli_rx} \
+     -group {clk_sli_cred} \
+     -allow_paths
+     # -group {clk_sys}
 
 # We set reasonable uncertainties in their transistion timing
 # and transition (rise/fall) times for all clocks (ns)
-set_clock_uncertainty 0.1 [all_clocks]
+set CLK_UNCERTAINTY   0.1
+set_clock_uncertainty $CLK_UNCERTAINTY [all_clocks]
 set_clock_transition  0.2 [all_clocks]
+
+
+
+
+
+# Credit return pulses: enable must be stable around clk_i edges
+set_clock_gating_check -setup 0.5 -hold 0.0 [get_clocks clk_sys]
+
+
+
+
 
 
 ####################
@@ -75,6 +147,12 @@ set_max_delay 3.0 -from $JTAG_ASYNC_REQ_START -to $JTAG_ASYNC_REQ_END -ignore_cl
 
 # Constrain `cdc_2phase` for DMI response
 set_max_delay 3.0 -from $JTAG_ASYNC_RSP_START -to $JTAG_ASYNC_RSP_END -ignore_clock_latency
+
+# Constrain `cdc_fifo_gray` for serial link in
+set_max_delay [expr $TCK_SYS * 0.20   ] -through $ASYNC_PINS_SL_RX -ignore_clock_latency
+set_min_delay [expr - $CLK_UNCERTAINTY] -through $ASYNC_PINS_SL_RX -ignore_clock_latency
+set_max_delay [expr $TCK_SYS * 0.20   ] -through $ASYNC_PINS_SL_CREDIT -ignore_clock_latency
+set_min_delay [expr - $CLK_UNCERTAINTY] -through $ASYNC_PINS_SL_CREDIT -ignore_clock_latency
 
 
 #############
@@ -129,3 +207,97 @@ set_input_delay  -min -add_delay -clock clk_sys [ expr $TCK_SYS * 0.10 ] [get_po
 set_input_delay  -max -add_delay -clock clk_sys [ expr $TCK_SYS * 0.30 ] [get_ports uart_rx_i]
 set_output_delay -min -add_delay -clock clk_sys [ expr $TCK_SYS * 0.10 ] [get_ports uart_tx_o]
 set_output_delay -max -add_delay -clock clk_sys [ expr $TCK_SYS * 0.30 ] [get_ports uart_tx_o]
+
+
+#################
+## Serial Link ##
+#################
+puts "Serial Link..."
+
+set SL_MAX_SKEW 0.55
+# set SL_IN       [get_ports slink_ddr?_i]
+# set SL_OUT      [get_ports slink_ddr?_o]
+# set SL_OUT_CLK  [get_ports slink_ddr_rcv_clk_o]
+puts "SL_IN:"
+foreach p $SL_IN {
+    puts "  [get_name $p]"
+}
+
+puts "SL_OUT:"
+foreach p $SL_OUT {
+    puts "  [get_name $p]"
+}
+
+puts "SL_OUT_CLK:"
+foreach p $SL_OUT_CLK {
+    puts "  [get_name $p]"
+}
+
+
+
+set SL_OUT_CLK_PORTS [get_ports {slink_ddr_rcv_clk_o slink_credit_rtrn_clk_o}]
+# Launch-to-pad for forwarded / credit clocks (clears unconstrained output endpoints)
+set_max_delay [expr {$TCK_SLI * 0.25}] -from [get_clocks clk_gen_slo] \
+    -to $SL_OUT_CLK_PORTS -ignore_clock_latency
+set_max_delay $TCK_SYS -from [get_clocks clk_gen_cred_rtrn] \
+    -to [get_ports slink_credit_rtrn_clk_o] -ignore_clock_latency
+# Hold at chip boundary is partner/board responsibility
+set_false_path -hold -to $SL_OUT_CLK_PORTS
+
+
+
+
+
+# DDR Input: Maximize assumed *transition* (unstable) interval by maximizing input delay span.
+# Transitions happen *between* sampling input clock edges, so centered around T/4 *after* sampling edges.
+# We assume that the transition takes up almost a full half period, so (T/4 - (T/4-skew), T/4 + (T/4-skew)).
+set_input_delay -min -add_delay -clock clk_sli_rx -network_latency_included [expr +$SL_MAX_SKEW] $SL_IN
+set_input_delay -min -add_delay -clock_fall -clock clk_sli_rx -network_latency_included [expr +$SL_MAX_SKEW] $SL_IN
+set_input_delay -max -add_delay -clock clk_sli_rx -network_latency_included [expr $TCK_SLI / 2 - $SL_MAX_SKEW] $SL_IN
+set_input_delay -max -add_delay -clock_fall -clock clk_sli_rx -network_latency_included [expr $TCK_SLI / 2 - $SL_MAX_SKEW] $SL_IN
+
+# DDR Output: Maximize *stable* interval we provide by maximizing output delay span (i.e. range in
+# which the target device may sample). This allows our outputs to transition only in a small margin.
+# The stable interval is centered around the centered clock sent for sampling, so (-T/4+skew, T/4-skew)
+set_output_delay -min -add_delay -clock clk_gen_slo -reference_pin $SL_OUT_CLK [expr -$TCK_SLI / 4 + $SL_MAX_SKEW] $SL_OUT
+set_output_delay -min -add_delay -clock_fall -clock clk_gen_slo -reference_pin $SL_OUT_CLK [expr -$TCK_SLI / 4 + $SL_MAX_SKEW] $SL_OUT
+set_output_delay -max -add_delay -clock clk_gen_slo -reference_pin $SL_OUT_CLK [expr $TCK_SLI / 4 - $SL_MAX_SKEW] $SL_OUT
+set_output_delay -max -add_delay -clock_fall -clock clk_gen_slo -reference_pin $SL_OUT_CLK [expr $TCK_SLI / 4 - $SL_MAX_SKEW] $SL_OUT
+
+
+
+
+# set SL_CLK_OUT_DDR    [get_ports slink_ddr_rcv_clk_o]
+# set SL_CLK_OUT_CREDIT [get_ports slink_credit_rtrn_clk_o]
+# # OpenROAD check_setup requires set_output_delay on every output port.
+# # Forwarded/credit clocks are timed by create_generated_clock + set_max_delay -to above;
+# # these output_delay values only satisfy the port audit and bound the pad loosely.
+# set_output_delay -min 0 -add_delay -clock clk_gen_slo $SL_CLK_OUT_DDR
+# set_output_delay -max [expr {$TCK_SLI / 2}] -add_delay -clock clk_gen_slo $SL_CLK_OUT_DDR
+# set_output_delay -min 0 -add_delay -clock_fall clk_gen_slo $SL_CLK_OUT_DDR
+# set_output_delay -max [expr {$TCK_SLI / 2}] -add_delay -clock_fall clk_gen_slo $SL_CLK_OUT_DDR
+# set_output_delay -min 0 -add_delay -clock clk_gen_cred_rtrn $SL_CLK_OUT_CREDIT
+# set_output_delay -max $TCK_SYS -add_delay -clock clk_gen_cred_rtrn $SL_CLK_OUT_CREDIT
+
+
+
+
+# Do not consider noncritical edges between driving and sent TX clock
+set_false_path -setup -rise_from [get_clocks clk_gen_slo_drv] -rise_to [get_clocks clk_gen_slo]
+set_false_path -setup -fall_from [get_clocks clk_gen_slo_drv] -fall_to [get_clocks clk_gen_slo]
+set_false_path -hold  -rise_from [get_clocks clk_gen_slo_drv] -fall_to [get_clocks clk_gen_slo]
+set_false_path -hold  -fall_from [get_clocks clk_gen_slo_drv] -rise_to [get_clocks clk_gen_slo]
+
+# Unfortunately, STA considers any cell with a clock and data pins checked with this clock an endpoint.
+# Here, we generate the clock `clk_gen_slo_drv` driving the TX data register, then mux TX data with that clock
+# to convert from SDR to DDR. Even when the output remains stable, the first-level cells of the converting mux
+# may switch, producing an LSB endpoint event on each rising edge when the SDR holding register swaps its data;
+# this violates hold on the following falling edge checking the active-low LSB phase.
+# TODO @fischeti: This would not happen with a single-s glitch-free clock mux like in hyperbus; consider adapting RTL.
+# # Do not allow PHY (System) clock to leak to DDR outputs and be timed as output transitions
+# -through [get_pins $SLINK_TX/data_out_q_reg_0_/Q]
+
+# set SLO_CLK_CELLS     [get_cells -filter ref_name==sg13g2_mux2_1 [get_fanout -only_cells -from $SLO_PHY_TCLK_Q]]
+set SLINK_CLK_MUX_CELLS [get_fanout -only_cells -from $SLINK_TX_SLOW_Q]
+set SLINK_CLK_MUX_PINS  [get_pins -of_objects $SLINK_CLK_MUX_CELLS -filter "name == $MUX_CONTROL_PIN"]
+set_sense -clock -stop_propagation $SLINK_CLK_MUX_PINS
