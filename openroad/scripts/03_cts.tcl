@@ -49,6 +49,8 @@ repair_clock_inverters
 
 utl::report "Clock Tree Synthesis"
 
+set_cts_config -skip_nets { i_croc_soc/i_user/i_slink.gen_phy_channels\[0\].i_serial_link_physical.i_slink_phys_layer_tx.clk_slow }
+
 # CTS buffer list (defined in init_tech.tcl)
 # ctsBuf and ctsBufRoot are set based on PDK
 clock_tree_synthesis -buf_list $ctsBuf -root_buf $ctsBufRoot \

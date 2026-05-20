@@ -31,8 +31,8 @@ set USER            i_croc_soc/i_user
 set SLINK 			$USER/i_slink
 set SLINK_LINK 		$SLINK.i_serial_link_data_link
 set SLINK_PHY0 		$SLINK.gen_phy_channels\[0\]
-set SLINK_TX 		$SLINK_PHY0.i_serial_link_physical.i_serial_link_physical_tx
-set SLINK_RX 		$SLINK_PHY0.i_serial_link_physical.i_serial_link_physical_rx
+set SLINK_TX 		$SLINK_PHY0.i_serial_link_physical.i_slink_phys_layer_tx
+set SLINK_RX 		$SLINK_PHY0.i_serial_link_physical.i_slink_phys_layer_rx
 set IBEX            $CROC/i_core_wrap.i_ibex
 set SRAM            $CROC/gen_sram_bank
 set JTAG            $CROC/i_dmi_jtag

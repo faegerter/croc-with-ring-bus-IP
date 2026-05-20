@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include "config.h"
 
-#define SLINK_REG_NODE_ID_REG_OFFSET                     0x000
+#define SLINK_REG_NODE_ID_REG_OFFSET                     0x008
 #define SLINK_REG_RAW_MODE_EN_REG_OFFSET                 0x004
 #define SLINK_REG_RAW_MODE_IN_DATA_REG_OFFSET            0x008
 #define SLINK_REG_RAW_MODE_IN_CH_SEL_REG_OFFSET          0x00C
