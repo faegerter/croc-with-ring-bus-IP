@@ -63,6 +63,7 @@ oseda -2025.12 bash <<EOF
 set -e
 
 cd ..
+bender vendor init
 bender update
 
 cd sw

@@ -19,6 +19,20 @@ uint32_t slink_get_node_id(){
     return *reg32(SLINK_CFG_BASE_ADDR, SLINK_REG_NODE_ID_REG_OFFSET);
 }
 
+
+void slink_set_ctrl_reg(uint32_t toggle_send){
+    *reg32(SLINK_CFG_BASE_ADDR, SLINK_REG_CTRL_REG_OFFSET) = toggle_send;
+}
+
+uint32_t slink_get_ctrl_reg(){
+    return *reg32(SLINK_CFG_BASE_ADDR, SLINK_REG_CTRL_REG_OFFSET);
+}
+
+uint32_t slink_get_err_reg(){
+    return *reg32(SLINK_CFG_BASE_ADDR, SLINK_REG_ERROR_REG_OFFSET);
+}
+
+
 void slink_set_tx_clk_div(uint32_t clk_div){
     *reg32(SLINK_CFG_BASE_ADDR, SLINK_REG_TX_PHY_CLK_DIV_0_REG_OFFSET) = clk_div;
 }

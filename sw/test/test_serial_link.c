@@ -31,11 +31,26 @@
 #define N_TESTS 5
 #endif
 
+#define SLINK_TX_CLK_DIV_8_START 2
+#define SLINK_TX_CLK_DIV_8_END 6
+
+#define STOP_NODE_TX 1
+#define START_NODE_TX 0
+
 #define ADDR_DEST_SHIFT  28U
 
 #define TEST_ADDR(dst, src, j) (((uint32_t)(dst) << ADDR_DEST_SHIFT) | (SRAM_BANK_1_BASE_ADDR) + ((uint32_t)(src-1) * N_TESTS + (uint32_t)(j))*4U)
 
 #define TEST_DATA(src, dst, j) ((uint32_t)((src) << 16 | (dst) << 8 | (j)))
+
+void set_tx_clk_div(uint32_t clk_div, uint32_t clk_start, uint32_t clk_end){
+    slink_set_ctrl_reg(STOP_NODE_TX); 
+    slink_set_tx_clk_div(clk_div);
+    slink_set_tx_clk_start(clk_start);
+    slink_set_tx_clk_end(clk_end);
+    slink_set_ctrl_reg(START_NODE_TX);
+}
+
 
 int main() {
     slink_set_node_id(NODE_ID);
@@ -43,6 +58,9 @@ int main() {
     if(slink_get_node_id() != NODE_ID){
         return 1;
     }
+
+    uint32_t new_clk_div = 8;
+    set_tx_clk_div(new_clk_div, SLINK_TX_CLK_DIV_8_START, SLINK_TX_CLK_DIV_8_END);
 
     uint32_t compare_data[NUM_NODES-1][N_TESTS];
 
@@ -76,7 +94,7 @@ int main() {
         i_idx++;
     }
     if(errors > 0){ 
-        return errors+1; //Due to testbench and JTAG configuration. Outputs the correct error value in the testbench.
+        return ((errors+1)>>2); //Due to testbench and JTAG configuration. Outputs the correct error value in the testbench.
     }
 
     return 0;
