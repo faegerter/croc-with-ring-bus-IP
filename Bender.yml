@@ -18,7 +18,7 @@ dependencies:
   obi_peripherals:      { git: "https://github.com/pulp-platform/obi_peripherals.git",      rev: 21ee04d    } # UART
   idma:                 { git: "https://github.com/pulp-platform/idma.git",                 rev: "__deploy__e618e4d__master" } # master with generated files
   cve2:                 { path: "rtl/cve2" } # a vendor package (no Bender.yml), see below 
-  slink_obi:            { path: "rtl/user_domain/serial_link" }
+  slink_obi:            { git: "https://github.com/faegerter/Ring-Serial-Link.git", rev: "e20e307cdbdcb295ca959515160a10658a3ce311"  }
 
 sources:
   # Level 0
@@ -199,7 +199,7 @@ vendor_package:
 
   - name: slink_obi
     target_dir: rtl/user_domain/serial_link
-    upstream: { git: "https://github.com/faegerter/Ring-Serial-Link.git", rev: "aa12d6fc54f879400b4f56292368c0ebc9248144" }
+    upstream: { git: "https://github.com/faegerter/Ring-Serial-Link.git", rev: "e20e307cdbdcb295ca959515160a10658a3ce311" }
     patch_dir: "rtl/.patches/slink_obi"
     mapping:
       - { from: 'src/',               to: 'src/',                patch_dir: 'src/' }

@@ -245,7 +245,8 @@ module slink
         .credit_recv_clk_i                       ( credit_recv_clk_i                                ),
         .credit_rtrn_clk_o                       ( credit_rtrn_clk_o                                ),
         .credits_out_o                           ( credits_out                                      ),
-        .node_id_i                               ( reg2hw.node_id.node_id.value                     )
+        .node_id_i                               ( reg2hw.node_id.node_id.value                     ),
+        .stop_send_i                             ( reg2hw.ctrl.stop_send.value                      )
     );
 
 
@@ -351,7 +352,7 @@ module slink
     ////////////////////////
 
     for (genvar i = 0; i < NumChannels; i++) begin : gen_phy_channels
-        serial_link_physical #(
+        slink_phys_layer #(
             .NumLanes         ( NumLanes      ),
             .FifoDepth        ( RecvFifoDepth ),
             .MaxClkDiv        ( MaxClkDiv     ),
@@ -372,8 +373,7 @@ module slink
             .data_in_valid_o   ( phy2alloc_data_in_valid[i]   ),
             .data_in_ready_i   ( alloc2phy_data_in_ready[i]   ),
             .ddr_i             ( ddr_i[i]                     ),
-            .ddr_o             ( ddr_o[i]                     ),
-            .stop_send_i       ( reg2hw.ctrl.stop_send.value  )
+            .ddr_o             ( ddr_o[i]                     )
         );
     end
 
@@ -382,7 +382,7 @@ module slink
     /////////////////////////////////
 
     slink_reg #( 
-        .ID_WIDTH (slink_obi_cfg.IDWidth)
+        .ID_WIDTH ( $bits(obi_reg_req_i.a.aid) )
     )i_serial_link_reg (
         .clk  (clk_i),
         .arst_n (rst_ni),

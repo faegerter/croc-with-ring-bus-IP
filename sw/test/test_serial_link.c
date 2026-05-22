@@ -31,8 +31,8 @@
 #define N_TESTS 5
 #endif
 
-#define SLINK_TX_CLK_DIV_8_START 2
-#define SLINK_TX_CLK_DIV_8_END 6
+#define SLINK_TX_CLK_DIV_4_START 1
+#define SLINK_TX_CLK_DIV_4_END 3
 
 #define STOP_NODE_TX 1
 #define START_NODE_TX 0
@@ -59,8 +59,8 @@ int main() {
         return 1;
     }
 
-    uint32_t new_clk_div = 8;
-    set_tx_clk_div(new_clk_div, SLINK_TX_CLK_DIV_8_START, SLINK_TX_CLK_DIV_8_END);
+    uint32_t new_clk_div = 4;
+    set_tx_clk_div(new_clk_div, SLINK_TX_CLK_DIV_4_START, SLINK_TX_CLK_DIV_4_END);
 
     uint32_t compare_data[NUM_NODES-1][N_TESTS];
 
